@@ -63,8 +63,8 @@ encode = function(input, ecl) {
     bitString = padRight(bitString, "0", 8 - remainder);
   }
 
-  if (bitString % 8 != 0) {
-    console.warn("BitString is not a byte length multiple");
+  if (bitString.length % 8 != 0) {
+    console.warn("BitString length is not a multiple of 8");
   }
 
   // Pad with special numbers to fill maximum capacity.
