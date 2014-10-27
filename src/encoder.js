@@ -5,7 +5,7 @@ var helloWorld = "HELLO WORLD";
 for (var i = 1; i <= 40; ++i) {
   //console.warn("Version: " + i + " Data Modules: " + getCodewordCount(i));
   for (var j = 0; j < 4; ++j) {
-    console.warn("Version: " + i + " DataCapacity: " + getDataCapacity(i, ALPHANUMERIC, j));
+    //console.warn("Version: " + i + " DataCapacity: " + getDataCapacity(i, ALPHANUMERIC, j));
     //console.warn("Version: " + i + " Data Codewords: " + getDataCodewords(i, j));
   }
   console.warn("");
@@ -49,7 +49,35 @@ encode = function(input, ecl) {
     case KANJI:
       break;
   }
+
+  var bitString = modeIndicator + charCountIndicator + encodedData;
+
+  var dataCodewords = getDataCodewords(version, ecl);
+  var totalBits = dataCodewords * 8;
+  // Add Terminator
+  var terminatorLength = Math.min(4, totalBits - bitString.length);
+  bitString = padRight(bitString, "0", terminatorLength);
+  // Make a multiple of 8
+  var remainder = bitString.length % 8;
+  if (remainder != 0) {
+    bitString = padRight(bitString, "0", 8 - remainder);
+  }
+
+  if (bitString % 8 != 0) {
+    console.warn("BitString is not a byte length multiple");
+  }
+
+  // Pad with special numbers to fill maximum capacity.
+  console.warn(version, dataCodewords, totalBits, bitString.length);
+  var missingBytes = (totalBits - bitString.length) / 8;
+  var byte1 = "11101100"; // 236
+  var byte2 = "00010001"; // 17
+  bitString = padRight(bitString, byte1 + byte2, Math.floor(missingBytes / 2));
+  if (missingBytes % 2 == 1) {
+    bitString += byte1;
+  }
   console.warn(modeIndicator, charCountIndicator, encodedData);
+  console.warn(bitString);
 }
 
 encode(helloWorld, ECL_Q);

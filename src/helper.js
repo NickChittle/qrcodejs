@@ -201,10 +201,15 @@ convertToBinary = function(number) {
   return binary;
 };
 
+padRight = function(input, padString, n) {
+  return input + Array(n + 1).join(padString);
+}
+
+padLeft = function(input, padString, n) {
+  return Array(n + 1).join(padString) + input;
+}
+
 padFrontWithZeros = function(input, length) {
-  while (input.length < length) {
-    input = "0" + input;
-  }
-  return input;
+  return padLeft(input, "0", length - input.length);
 };
 
