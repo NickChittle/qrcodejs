@@ -1,3 +1,14 @@
+
+isNumeric = function(input) {
+  for (var i = 0; i < input.length; ++i) {
+    if (isNaN(input.charAt(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
 encodeNumeric = function(input) {
   var encoded = "";
   for (var i = 0; i < input.length; i += 3) {

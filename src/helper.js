@@ -107,6 +107,9 @@ getDataCapacity = function(version, mode, ecl) {
     case KANJI:
       return getKanjiDataCapacity(version, ecl);
       break;
+    default:
+      console.warn("getDataCapacity: Unrecognized Mode: " + mode);
+
   }
   return -1;
 };
@@ -134,6 +137,8 @@ getModeIndicator = function(mode) {
     case KANJI:
       return "1000";
       break;
+    default:
+      console.warn("getModeIndicator: Unrecognized Mode: " + mode);
   }
 }
 
