@@ -73,7 +73,16 @@ getNumericDataCapacity = function(version, ecl) {
 }
 
 getAlphanumericDataCapacity = function(version, ecl) {
-  return -1;
+  var dataCodewords = getDataCodewords(version, ecl);
+  var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, ALPHANUMERIC);
+  // Subtract four for mode indicator.
+  var bits = (dataCodewords * 8) - charCountIndicatorLength - 4;
+  var dataCount = 2 * Math.floor(bits / 11);
+  var remainder = bits % 11;
+  if (remainder >= 6) {
+    dataCount ++;
+  }
+  return dataCount;
 };
 
 getByteDataCapacity = function(version, ecl) {
@@ -172,4 +181,25 @@ getCharacterCountIndicatorBitLength = function(version, mode) {
     default:
       return 0;
   }
-}
+};
+
+convertToBinary = function(number) {
+  binary = "";
+  while (number > 0) {
+    if (number % 2 == 0) {
+      binary = "0" + binary;
+    } else {
+      binary = "1" + binary;
+    }
+    number = Math.floor(number / 2);
+  }
+  return binary;
+};
+
+padFrontWithZeros = function(input, length) {
+  while (input.length < length) {
+    input = "0" + input;
+  }
+  return input;
+};
+
