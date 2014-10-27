@@ -1,13 +1,3 @@
-NUMERIC = "NUMERIC";
-ALPHANUMERIC = "ALPHANUMERIC";
-BYTE = "BYTE";
-KANJI = "KANJI";
-
-ECL_L = "L";
-ECL_M = "M";
-ECL_Q = "Q";
-ECL_H = "H";
-
 getLength = function(version) {
   return 17 + version*4;
 };
@@ -56,7 +46,130 @@ getDataModulesCount = function(version) {
 };
 
 getCodewordCount = function(version) {
-  return Math.floor(getDataModulesCount / 8);
+  return Math.floor(getDataModulesCount(version) / 8);
 };
 
-get
+getErrorCodewords = function(version, ecl) {
+  return errorCorrectionCodewords[version - 1][ecl];
+};
+
+getDataCodewords = function(version, ecl) {
+  return getCodewordCount(version) - getErrorCodewords(version, ecl);
+};
+
+getNumericDataCapacity = function(version, ecl) {
+  var dataCodewords = getDataCodewords(version, ecl);
+  var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, NUMERIC);
+  // Subtract four for mode indicator.
+  var bits = (dataCodewords * 8) - charCountIndicatorLength - 4;
+  var dataCount = 3 * Math.floor(bits / 10);
+  var remainder = bits % 10;
+  if (remainder >= 7) {
+    dataCount += 2;
+  } else if (remainder >= 4) {
+    dataCount ++;
+  }
+  return dataCount;
+}
+
+getAlphanumericDataCapacity = function(version, ecl) {
+  return -1;
+};
+
+getByteDataCapacity = function(version, ecl) {
+  return -1;
+};
+
+getKanjiDataCapacity = function(version, ecl) {
+  return -1;
+};
+
+getDataCapacity = function(version, mode, ecl) {
+  switch(mode) {
+    case NUMERIC:
+      return getNumericDataCapacity(version, ecl);
+      break;
+    case ALPHANUMERIC:
+      return getAlphanumericDataCapacity(version, ecl);
+      break;
+    case BYTE:
+      return getByteDataCapacity(version, ecl);
+      break;
+    case KANJI:
+      return getKanjiDataCapacity(version, ecl);
+      break;
+  }
+  return -1;
+};
+
+getMinimumVersion = function(inputLength, mode, ecl) {
+  for (var i = 1; i <= 40; ++i) {
+    if (inputLength < getDataCapacity(i, mode, ecl)) {
+      return i;
+    }
+  }
+  return -1;
+};
+
+getModeIndicator = function(mode) {
+  switch(mode) {
+    case NUMERIC:
+      return "0001";
+      break;
+    case ALPHANUMERIC:
+      return "0010";
+      break;
+    case BYTE:
+      return "0100";
+      break;
+    case KANJI:
+      return "1000";
+      break;
+  }
+}
+
+getCharacterCountIndicatorBitLength = function(version, mode) {
+  if (version < 1 || version > 40) {
+    console.warn("Incorrect Version: " + version);
+  }
+  switch(mode) {
+    case NUMERIC:
+      if (version <= 9) {
+        return 10;
+      } else if (version <= 26) {
+        return 12;
+      } else if (version <= 40) {
+        return 14;
+      }
+      break;
+    case ALPHANUMERIC:
+      if (version <= 9) {
+        return 9;
+      } else if (version <= 26) {
+        return 11;
+      } else if (version <= 40) {
+        return 13;
+      }
+      break;
+    case BYTE:
+      if (version <= 9) {
+        return 8;
+      } else if (version <= 26) {
+        return 16;
+      } else if (version <= 40) {
+        return 16;
+      }
+      break;
+    case KANJI:
+      if (version <= 9) {
+        return 8;
+      } else if (version <= 26) {
+        return 10;
+      } else if (version <= 40) {
+        return 12;
+      }
+      break;
+    default:
+      return 0;
+  }
+}
