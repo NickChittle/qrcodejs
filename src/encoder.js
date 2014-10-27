@@ -57,7 +57,7 @@ encode = function(input, ecl) {
   // Add Terminator
   var terminatorLength = Math.min(4, totalBits - bitString.length);
   bitString = padRight(bitString, "0", terminatorLength);
-  // Make a multiple of 8
+  // Make length a multiple of 8
   var remainder = bitString.length % 8;
   if (remainder != 0) {
     bitString = padRight(bitString, "0", 8 - remainder);
