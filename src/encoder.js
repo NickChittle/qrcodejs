@@ -58,10 +58,7 @@ encode = function(input, ecl) {
   var terminatorLength = Math.min(4, totalBits - bitString.length);
   bitString = padRight(bitString, "0", terminatorLength);
   // Make length a multiple of 8
-  var remainder = bitString.length % 8;
-  if (remainder != 0) {
-    bitString = padRight(bitString, "0", 8 - remainder);
-  }
+  bitString = padLengthToByte(bitString);
 
   if (bitString.length % 8 != 0) {
     console.warn("BitString length is not a multiple of 8");

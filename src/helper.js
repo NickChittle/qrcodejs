@@ -203,13 +203,20 @@ convertToBinary = function(number) {
 
 padRight = function(input, padString, n) {
   return input + Array(n + 1).join(padString);
-}
+};
 
 padLeft = function(input, padString, n) {
   return Array(n + 1).join(padString) + input;
-}
+};
 
 padFrontWithZeros = function(input, length) {
   return padLeft(input, "0", length - input.length);
 };
 
+padLengthToByte = function(input) {
+  var remainder = input.length % 8;
+  if (remainder != 0) {
+    input = padRight(input, "0", 8 - remainder);
+  }
+  return input;
+};
