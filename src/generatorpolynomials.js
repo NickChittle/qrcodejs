@@ -1,8 +1,4 @@
 
-
-
-
-
 gf_exp = new Array(512+1).join('0').split('');
 gf_log = new Array(256+1).join('0').split('');
 
@@ -11,7 +7,7 @@ initGaliosFieldNums = function() {
   gf_log[0] = 0;
   gf_log[1] = 0;
   x = 1;
-  for (var i = 1; i < 254; ++i) {
+  for (var i = 1; i < 255; ++i) {
      x <<= 1;
      if (x & 0x100) {
         x ^= 0x11d;
@@ -37,25 +33,55 @@ gf_poly_mul = function(p, q) {
   for (var i = 0; i < r.length; ++i) {
     r[i] = 0;
   }
+  //console.warn(p, q);
   for (var j = 0; j < q.length; ++j) {
     for (var i = 0; i < p.length; ++i) {
+      //if (q[j] == 32) {
+        //console.warn("HERE", i,j ,r, r[i+j], p[i], q[j], gf_mul(p[i], q[j]), gf_log[p[i]], gf_log[q[j]]);
+      //}
       r[i+j] ^= gf_mul(p[i], q[j]);
+      //if (q[j] == 32) {
+        //console.warn("HERE2", r, r[i+j], p[i], q[j]);
+      //}
     }
   }
   return r;
 };
 
-create_generatory_poly = function(n) {
+create_generator_poly = function(n) {
   g = [1];
   for (var i = 0; i < n; ++i) {
     g = gf_poly_mul(g, [1, gf_exp[i]]);
+    console.warn(g, gf_exp[i]);
   }
   return g;
 };
 
+rs_encode_msg = function(msg_in, nsym){
+  gen = create_generator_poly(nsym);
+  msg_out = new Array(msg_in.length + nsym);
+  for (var i = 0; i < msg_out.length; ++i) {
+    msg_out[i] = 0;
+  }
+  for (var i = 0; i < msg_in.length; ++i) {
+    msg_out[i] = msg_in[i];
+  }
+  for (var i = 0; i < msg_in.length; ++i) {
+    var coef = msg_out[i];
+    if (coef != 0) {
+      for (var j = 0; j < gen.length; ++j) {
+        msg_out[i+j] ^= gf_mul(gen[j], coef);
+      }
+    }
+  }
+  for (var i = 0; i < msg_in.length; ++i) {
+    msg_out[i] = msg_in[i];
+  }
+  return msg_out;
+};
+
 initGaliosFieldNums();
-for (i = 0; i < 20; ++i) {
-  //console.warn("i " + gf_exp[i]);
-  console.warn(i, gf_exp[i], gf_log[i]);
-}
-console.warn(create_generatory_poly(7));
+console.warn("LOG: " + gf_log[1])
+//for (i = 4; i < 8; ++i) {
+  console.warn(create_generator_poly(7));
+//}

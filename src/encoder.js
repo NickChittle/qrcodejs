@@ -2,14 +2,14 @@ var input = "Nick Chittle Dec 22 1992"
 var numericInput = "01234567"
 var helloWorld = "HELLO WORLD";
 
-for (var i = 1; i <= 40; ++i) {
+//for (var i = 1; i <= 40; ++i) {
   //console.warn("Version: " + i + " Data Modules: " + getCodewordCount(i));
-  for (var j = 0; j < 4; ++j) {
+  //for (var j = 0; j < 4; ++j) {
     //console.warn("Version: " + i + " DataCapacity: " + getDataCapacity(i, ALPHANUMERIC, j));
     //console.warn("Version: " + i + " Data Codewords: " + getDataCodewords(i, j));
-  }
-  console.warn("");
-}
+  //}
+  //console.warn("");
+//}
 
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
@@ -65,7 +65,6 @@ encode = function(input, ecl) {
   }
 
   // Pad with special numbers to fill maximum capacity.
-  console.warn(version, dataCodewords, totalBits, bitString.length);
   var missingBytes = (totalBits - bitString.length) / 8;
   var byte1 = "11101100"; // 236
   var byte2 = "00010001"; // 17
@@ -73,11 +72,25 @@ encode = function(input, ecl) {
   if (missingBytes % 2 == 1) {
     bitString += byte1;
   }
-  console.warn(modeIndicator, charCountIndicator, encodedData);
   console.warn(bitString);
+  return bitString;
+};
+
+getCodewordsValues = function(bitString) {
+  codewords = [];
+  for (var i = 0; i < bitString.length; i += 8) {
+    codewords.push(convertToDecimal(bitString.substring(i, i + 8)));
+  }
+  return codewords;
 };
 
 gf_poly_mul([1], [2]);
 
-//encode(helloWorld, ECL_Q);
+var hellworldBitString = encode(helloWorld, ECL_M);
+var codewords = getCodewordsValues(hellworldBitString);
+console.warn(codewords);
+//var ecwords = rs_encode_msg(codewords, 10);
+//console.warn(ecwords);
+
+
 //encode("01234567", ECL_M);

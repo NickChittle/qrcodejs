@@ -188,6 +188,14 @@ getCharacterCountIndicatorBitLength = function(version, mode) {
   }
 };
 
+convertToDecimal = function(binary) {
+  var total = 0;
+  for (var i = 0; i < binary.length; ++i) {
+    total += parseInt(binary.charAt(binary.length - i - 1)) << i;
+  }
+  return total;
+};
+
 convertToBinary = function(number) {
   binary = "";
   while (number > 0) {
