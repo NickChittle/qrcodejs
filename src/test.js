@@ -16,7 +16,6 @@ testGenerateErrorCodewordsAndInterleave = function() {
   blocks = generateErrorCodewords(blocks, 5, ECL_Q);
   blocks = convertBlocksToBinary(blocks);
   var interleavedBlocks = interleaveDataAndErrorBlocks(blocks);
-  console.warn(interleavedBlocks);
   var allCodewords = interleavedBlocks.dataCodewords.concat(interleavedBlocks.errorCodewords)
   var bitString = allCodewords.join("");
   if (bitString == testCodewordsActualBitString) {

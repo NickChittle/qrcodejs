@@ -72,10 +72,6 @@ encode = function(input, ecl) {
   if (missingBytes % 2 == 1) {
     bitString += byte1;
   }
-  console.warn(bitString);
-  console.warn(bitString.length);
-  console.warn("Version: " + version)
-  console.warn("Data: " + dataCodewords)
   return bitString;
 };
 
@@ -91,7 +87,6 @@ generateErrorCodewords = function(blocks, version, ecl) {
   for (var i = 0; i < blocks.length; ++i) {
     dataCW = blocks[i].dataCodewords;
     blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
-    console.warn(blocks[i].errorCodewords);
   }
   return blocks;
 };
