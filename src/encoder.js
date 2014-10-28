@@ -75,6 +75,9 @@ encode = function(input, ecl) {
   }
   console.warn(modeIndicator, charCountIndicator, encodedData);
   console.warn(bitString);
-}
+};
 
-encode(helloWorld, ECL_Q);
+gf_poly_mul([1], [2]);
+
+//encode(helloWorld, ECL_Q);
+//encode("01234567", ECL_M);
