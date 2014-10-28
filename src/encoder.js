@@ -1,6 +1,6 @@
 var input = "Nick Chittle Dec 22 1992"
 var numericInput = "01234567"
-var helloWorld = "HELLO WORLD";
+var helloWorld = "HELLO WORLDAAEUAOEAOEAOEAOEAOEAOEAOEAOETHAONETHAONETHAONETHANOTHAOEAOAEAOEAO";
 
 //for (var i = 1; i <= 40; ++i) {
   //console.warn("Version: " + i + " Data Modules: " + getCodewordCount(i));
@@ -73,24 +73,38 @@ encode = function(input, ecl) {
     bitString += byte1;
   }
   console.warn(bitString);
+  console.warn(bitString.length);
+  console.warn("Version: " + version)
+  console.warn("Data: " + dataCodewords)
   return bitString;
 };
 
-getCodewordsValues = function(bitString) {
-  codewords = [];
-  for (var i = 0; i < bitString.length; i += 8) {
-    codewords.push(convertToDecimal(bitString.substring(i, i + 8)));
-  }
-  return codewords;
-};
-
-gf_poly_mul([1], [2]);
-
-var hellworldBitString = encode(helloWorld, ECL_M);
-var codewords = getCodewordsValues(hellworldBitString);
+var helloWorldBitString = encode(helloWorld, ECL_Q);
+var codewords = getCodewordsDecimal(helloWorldBitString);
 console.warn(codewords);
 var ecwords = rs_encode_msg(codewords, 10);
 console.warn(ecwords);
 
+generateErrorCodewords = function(blocks, version, ecl) {
+  var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
+  var errorCodewordsPerBlock = errorCodewordsCount / blocks.length;
+  for (var i = 0; i < blocks.length; ++i) {
+    dataCW = blocks[i].dataCodewords;
+    blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
+    console.warn(blocks[i].errorCodewords);
+  }
+  return blocks;
+};
 
-//encode("01234567", ECL_M);
+convertBlocksToBinary = function(blocks) {
+  for (var i = 0; i < blocks.length; ++i) {
+    blocks[i].dataCodewords = convertCodewordsToBinary(blocks[i].dataCodewords);
+    blocks[i].errorCodewords = convertCodewordsToBinary(blocks[i].errorCodewords);
+  }
+  return blocks;
+};
+
+//var blocks = splitIntoBlocks(convertCodewordsToDecimal(codewords), 5, ECL_Q);
+//blocks = generateErrorCodewords(blocks, 5, ECL_Q);
+//blocks = convertBlocksToBinary(blocks);
+//console.warn(interleaveDataAndErrorBlocks(blocks));

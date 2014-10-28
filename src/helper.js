@@ -228,3 +228,30 @@ padLengthToByte = function(input) {
   }
   return input;
 };
+
+getCodewords = function(bitString) {
+  var codewords = [];
+  for (var i = 0; i < bitString.length; i += 8) {
+    codewords.push(bitString.substring(i, i + 8));
+  }
+  return codewords;
+};
+
+convertCodewordsToDecimal = function(codewords) {
+  for (var i = 0; i < codewords.length; ++i) {
+    codewords[i] = convertToDecimal(codewords[i]);
+  }
+  return codewords;
+};
+
+convertCodewordsToBinary = function(codewords) {
+  for (var i = 0; i < codewords.length; ++i) {
+    codewords[i] = padFrontWithZeros(convertToBinary(codewords[i]), 8);
+  }
+  return codewords;
+};
+
+getCodewordsDecimal = function(bitString) {
+  var codewords = getCodewords(bitString);
+  return convertCodewordsToDecimal(codewords);
+};
