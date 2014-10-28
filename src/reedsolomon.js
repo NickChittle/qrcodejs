@@ -33,16 +33,9 @@ gf_poly_mul = function(p, q) {
   for (var i = 0; i < r.length; ++i) {
     r[i] = 0;
   }
-  //console.warn(p, q);
   for (var j = 0; j < q.length; ++j) {
     for (var i = 0; i < p.length; ++i) {
-      //if (q[j] == 32) {
-        //console.warn("HERE", i,j ,r, r[i+j], p[i], q[j], gf_mul(p[i], q[j]), gf_log[p[i]], gf_log[q[j]]);
-      //}
       r[i+j] ^= gf_mul(p[i], q[j]);
-      //if (q[j] == 32) {
-        //console.warn("HERE2", r, r[i+j], p[i], q[j]);
-      //}
     }
   }
   return r;
@@ -52,7 +45,6 @@ create_generator_poly = function(n) {
   g = [1];
   for (var i = 0; i < n; ++i) {
     g = gf_poly_mul(g, [1, gf_exp[i]]);
-    console.warn(g, gf_exp[i]);
   }
   return g;
 };
@@ -74,14 +66,7 @@ rs_encode_msg = function(msg_in, nsym){
       }
     }
   }
-  for (var i = 0; i < msg_in.length; ++i) {
-    msg_out[i] = msg_in[i];
-  }
-  return msg_out;
+  return msg_out.slice(msg_in.length);
 };
 
 initGaliosFieldNums();
-console.warn("LOG: " + gf_log[1])
-//for (i = 4; i < 8; ++i) {
-  console.warn(create_generator_poly(7));
-//}

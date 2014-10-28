@@ -89,8 +89,8 @@ gf_poly_mul([1], [2]);
 var hellworldBitString = encode(helloWorld, ECL_M);
 var codewords = getCodewordsValues(hellworldBitString);
 console.warn(codewords);
-//var ecwords = rs_encode_msg(codewords, 10);
-//console.warn(ecwords);
+var ecwords = rs_encode_msg(codewords, 10);
+console.warn(ecwords);
 
 
 //encode("01234567", ECL_M);
