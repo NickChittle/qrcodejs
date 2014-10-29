@@ -229,6 +229,17 @@ padLengthToByte = function(input) {
   return input;
 };
 
+padWithSpecialBytes = function(input, length) {
+  var missingBytes = (length - input.length) / 8;
+  var byte1 = "11101100"; // 236
+  var byte2 = "00010001"; // 17
+  input = padRight(input, byte1 + byte2, Math.floor(missingBytes / 2));
+  if (missingBytes % 2 == 1) {
+    input += byte1;
+  }
+  return input;
+};
+
 getCodewords = function(bitString) {
   var codewords = [];
   for (var i = 0; i < bitString.length; i += 8) {

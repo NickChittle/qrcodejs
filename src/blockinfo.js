@@ -87,3 +87,11 @@ interleaveBlocks = function(blocks) {
   }
   return codewords;
 };
+
+convertBlocksToBinary = function(blocks) {
+  for (var i = 0; i < blocks.length; ++i) {
+    blocks[i].dataCodewords = convertCodewordsToBinary(blocks[i].dataCodewords);
+    blocks[i].errorCodewords = convertCodewordsToBinary(blocks[i].errorCodewords);
+  }
+  return blocks;
+};

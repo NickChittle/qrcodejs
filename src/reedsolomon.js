@@ -69,4 +69,14 @@ rs_encode_msg = function(msg_in, nsym){
   return msg_out.slice(msg_in.length);
 };
 
+generateErrorCodewords = function(blocks, version, ecl) {
+  var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
+  var errorCodewordsPerBlock = errorCodewordsCount / blocks.length;
+  for (var i = 0; i < blocks.length; ++i) {
+    dataCW = blocks[i].dataCodewords;
+    blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
+  }
+  return blocks;
+};
+
 initGaliosFieldNums();

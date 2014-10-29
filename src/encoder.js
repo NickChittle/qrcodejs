@@ -64,14 +64,9 @@ encode = function(input, ecl) {
     console.warn("BitString length is not a multiple of 8");
   }
 
+  bitString = padWithSpecialBytes(bitString, totalBits);
+
   // Pad with special numbers to fill maximum capacity.
-  var missingBytes = (totalBits - bitString.length) / 8;
-  var byte1 = "11101100"; // 236
-  var byte2 = "00010001"; // 17
-  bitString = padRight(bitString, byte1 + byte2, Math.floor(missingBytes / 2));
-  if (missingBytes % 2 == 1) {
-    bitString += byte1;
-  }
   return bitString;
 };
 
@@ -80,24 +75,6 @@ var codewords = getCodewordsDecimal(helloWorldBitString);
 console.warn(codewords);
 var ecwords = rs_encode_msg(codewords, 10);
 console.warn(ecwords);
-
-generateErrorCodewords = function(blocks, version, ecl) {
-  var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
-  var errorCodewordsPerBlock = errorCodewordsCount / blocks.length;
-  for (var i = 0; i < blocks.length; ++i) {
-    dataCW = blocks[i].dataCodewords;
-    blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
-  }
-  return blocks;
-};
-
-convertBlocksToBinary = function(blocks) {
-  for (var i = 0; i < blocks.length; ++i) {
-    blocks[i].dataCodewords = convertCodewordsToBinary(blocks[i].dataCodewords);
-    blocks[i].errorCodewords = convertCodewordsToBinary(blocks[i].errorCodewords);
-  }
-  return blocks;
-};
 
 //var blocks = splitIntoBlocks(convertCodewordsToDecimal(codewords), 5, ECL_Q);
 //blocks = generateErrorCodewords(blocks, 5, ECL_Q);
