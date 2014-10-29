@@ -60,7 +60,6 @@ Canvas.prototype.drawMatrix = function(matrix, pixelWidth) {
   for (var i = 0; i < length; ++i) {
     for (var j = 0; j < length; ++j) {
       if (matrix[i][j] == 1) {
-        console.warn(i,j);
         this.context.fillRect(i * pixelWidth, j * pixelWidth, pixelWidth, pixelWidth);
       }
     }
