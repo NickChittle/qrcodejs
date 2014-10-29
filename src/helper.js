@@ -221,6 +221,10 @@ padFrontWithZeros = function(input, length) {
   return padLeft(input, "0", length - input.length);
 };
 
+padEndWithZeros = function(input, length) {
+  return padRight(input, "0", length - input.length);
+};
+
 padLengthToByte = function(input) {
   var remainder = input.length % 8;
   if (remainder != 0) {
@@ -265,4 +269,13 @@ convertCodewordsToBinary = function(codewords) {
 getCodewordsDecimal = function(bitString) {
   var codewords = getCodewords(bitString);
   return convertCodewordsToDecimal(codewords);
+};
+
+padToFullLength = function(bitString, version) {
+  var totalLength = getDataModulesCount(version);
+  if (totalLength - bitString.length > 7) {
+    console.warn("Padded length is more than 7");
+  }
+  bitString = padEndWithZeros(bitString, totalLength);
+  return bitString;
 };

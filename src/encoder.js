@@ -1,4 +1,4 @@
-var input = "Nick Chittle Dec 22 1992"
+var input = "Nick Chittle Dec 23 1992"
 var numericInput = "01234567"
 var helloWorld = "HELLO WORLDAAEUAOEAOEAOEAOEAOEAOEAOEAOETHAONETHAONETHAONETHANOTHAOEAOAEAOEAO";
 
@@ -64,19 +64,21 @@ encode = function(input, ecl) {
     console.warn("BitString length is not a multiple of 8");
   }
 
+  // Pad with special numbers to fill maximum data capacity.
   bitString = padWithSpecialBytes(bitString, totalBits);
 
-  // Pad with special numbers to fill maximum capacity.
+  var codewords = getCodewordsDecimal(bitString);
+  console.warn(codewords);
+  var blocks = splitIntoBlocks(codewords, version, ecl);
+  blocks = generateErrorCodewords(blocks, version, ecl);
+  blocks = convertBlocksToBinary(blocks);
+  var interleavedBlocks = interleaveDataAndErrorBlocks(blocks);
+  var allCodewords = interleavedBlocks.dataCodewords.concat(interleavedBlocks.errorCodewords)
+  bitString = allCodewords.join("");
+
+  bitString = padToFullLength(bitString, version);
+
   return bitString;
 };
 
-var helloWorldBitString = encode(helloWorld, ECL_Q);
-var codewords = getCodewordsDecimal(helloWorldBitString);
-console.warn(codewords);
-var ecwords = rs_encode_msg(codewords, 10);
-console.warn(ecwords);
-
-//var blocks = splitIntoBlocks(convertCodewordsToDecimal(codewords), 5, ECL_Q);
-//blocks = generateErrorCodewords(blocks, 5, ECL_Q);
-//blocks = convertBlocksToBinary(blocks);
-//console.warn(interleaveDataAndErrorBlocks(blocks));
+console.warn(encode(helloWorld, ECL_Q));
