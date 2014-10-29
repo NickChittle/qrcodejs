@@ -1,6 +1,6 @@
 var input = "Nick Chittle Dec 23 1992"
 var numericInput = "01234567"
-var helloWorld = "HELLO WORLD";
+var helloWorld = "HELLO WORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLD";
 
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
