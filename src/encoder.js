@@ -68,7 +68,6 @@ encode = function(input, ecl) {
   bitString = padWithSpecialBytes(bitString, totalBits);
 
   var codewords = getCodewordsDecimal(bitString);
-  console.warn(codewords);
   var blocks = splitIntoBlocks(codewords, version, ecl);
   blocks = generateErrorCodewords(blocks, version, ecl);
   blocks = convertBlocksToBinary(blocks);
