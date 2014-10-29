@@ -1,15 +1,6 @@
 var input = "Nick Chittle Dec 23 1992"
 var numericInput = "01234567"
-var helloWorld = "HELLO WORLDAAEUAOEAOEAOEAOEAOEAOEAOEAOETHAONETHAONETHAONETHANOTHAOEAOAEAOEAO";
-
-//for (var i = 1; i <= 40; ++i) {
-  //console.warn("Version: " + i + " Data Modules: " + getCodewordCount(i));
-  //for (var j = 0; j < 4; ++j) {
-    //console.warn("Version: " + i + " DataCapacity: " + getDataCapacity(i, ALPHANUMERIC, j));
-    //console.warn("Version: " + i + " Data Codewords: " + getDataCodewords(i, j));
-  //}
-  //console.warn("");
-//}
+var helloWorld = "HELLO WORLD";
 
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
@@ -76,8 +67,13 @@ encode = function(input, ecl) {
   bitString = allCodewords.join("");
 
   bitString = padToFullLength(bitString, version);
+  createQRMatrix(version, bitString);
 
   return bitString;
 };
 
-console.warn(encode(helloWorld, ECL_Q));
+init = function init() {
+  code = encode(helloWorld, ECL_Q);
+  console.warn(code);
+};
+
