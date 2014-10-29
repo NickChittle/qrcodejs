@@ -23,6 +23,10 @@ Canvas.prototype.drawMatrix = function(matrix, pixelWidth) {
       } else if (matrix[i][j] == 0) {
         this.context.fillStyle = "#FFF";
         this.context.fillRect(i * pixelWidth, j * pixelWidth, pixelWidth, pixelWidth);
+      } else if (matrix[i][j] == 2) {
+        // Reserved Square.
+        this.context.fillStyle = "#00F";
+        this.context.fillRect(i * pixelWidth, j * pixelWidth, pixelWidth, pixelWidth);
       }
     }
   }

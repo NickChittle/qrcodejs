@@ -23,6 +23,13 @@ createMatrix = function(x, y) {
   return matrix;
 };
 
+maybeSet = function(x, y, value, matrix) {
+  if (matrix[x][y] == -1) {
+    matrix[x][y] = value;
+  }
+  return matrix;
+}
+
 addFinderPattern = function(x, y, matrix) {
   for (var i = 0; i < 7; ++i) {
     matrix[x+i][y] = 1;
@@ -64,10 +71,8 @@ addTimingPatterns = function(matrix) {
   var color = 1;
   for (var i = 8; i < length - 8; ++i) {
     // Don't overwrite alignment patterns.
-    if (matrix[6][i] == -1) {
-      matrix[6][i] = color;
-      matrix[i][6] = color;
-    }
+    maybeSet(6, i, color, matrix);
+    maybeSet(i, 6, color, matrix);
     color = 1 - color;
   }
   return matrix;
@@ -126,6 +131,33 @@ addAlignmentPatterns = function(version, matrix) {
   return matrix;
 };
 
+addDarkModule = function(matrix) {
+  var length = matrix.length;
+  matrix[8][length-8] = 1;
+};
+
+addReservedAreas = function(version, matrix) {
+  var length = getLength(version);
+  for (var i = 0; i < 8; ++i) {
+    maybeSet(i, 8, 2, matrix);
+    maybeSet(8, i, 2, matrix);
+
+    maybeSet(length-i-1, 8, 2, matrix);
+
+    maybeSet(8, length-i-1, 2, matrix);
+  }
+  matrix[8][8] = 2;
+  if (version >= 7) {
+    for (var i = 0; i < 6; ++i) {
+      for (var j = 0; j < 3; ++j) {
+        matrix[i][length-9-j] = 2;
+        matrix[length-9-j][i] = 2;
+      }
+    }
+  }
+  return matrix;
+};
+
 printMatrix = function(matrix) {
   if (matrix.length == 0) {
     return;
@@ -148,6 +180,8 @@ createQRMatrix = function(version, input) {
   addSeparators(matrix);
   addAlignmentPatterns(version, matrix);
   addTimingPatterns(matrix);
+  addDarkModule(matrix);
+  addReservedAreas(version, matrix);
 
   var canvas = new Canvas();
   canvas.drawMatrix(matrix, 10);
