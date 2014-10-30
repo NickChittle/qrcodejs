@@ -158,6 +158,46 @@ addReservedAreas = function(version, matrix) {
   return matrix;
 };
 
+nextSpot = function(state) {
+  if (state.column == 1) {
+    state.x--;
+    state.column = 2;
+  } else {
+    state.column = 1;
+    state.x++;
+    state.y += state.direction;
+  }
+  return state;
+};
+
+addDataBits = function(bitString, matrix) {
+  var length = matrix.length;
+  var state = {"x": length-1, "y": length-1, "column": 1, "direction": -1};
+  matrix[state.x][state.y] = bitString[0];
+  for (var i = 1; i < bitString.length; ++i) {
+    while (matrix[state.x][state.y] != -1) {
+      state = nextSpot(state);
+      // We hit the edge, move over and change directions.
+      if (state.y < 0 || state.y >= length) {
+        state.x -= 2;
+        if (state.x == 6) {
+          // Don't overlap with vertical timing pattern
+          state.x--;
+        }
+        state.direction *= -1;
+        // Get back on board.
+        state.y += state.direction;
+      }
+      if (state.x < 0) {
+        console.warn("Something Weird Happened");
+        return matrix;
+      }
+    }
+    matrix[state.x][state.y] = bitString[i];
+  };
+  return matrix;
+};
+
 printMatrix = function(matrix) {
   if (matrix.length == 0) {
     return;
@@ -182,6 +222,7 @@ createQRMatrix = function(version, input) {
   addTimingPatterns(matrix);
   addDarkModule(matrix);
   addReservedAreas(version, matrix);
+  addDataBits(input, matrix);
 
   var canvas = new Canvas();
   canvas.drawMatrix(matrix, 10);
