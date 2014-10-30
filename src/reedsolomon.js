@@ -49,8 +49,12 @@ create_generator_poly = function(n) {
   return g;
 };
 
-rs_encode_msg = function(msg_in, nsym){
+rs_encode_msg = function(msg_in, nsym) {
   gen = create_generator_poly(nsym);
+  return rs_encode_msg_with_gen(msg_in, nsym, gen);
+};
+
+rs_encode_msg_with_gen = function(msg_in, nsym, gen){
   msg_out = new Array(msg_in.length + nsym);
   for (var i = 0; i < msg_out.length; ++i) {
     msg_out[i] = 0;
@@ -72,9 +76,11 @@ rs_encode_msg = function(msg_in, nsym){
 generateErrorCodewords = function(blocks, version, ecl) {
   var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
   var errorCodewordsPerBlock = errorCodewordsCount / blocks.length;
+  console.warn(version, ecl, errorCodewordsCount);
   for (var i = 0; i < blocks.length; ++i) {
     dataCW = blocks[i].dataCodewords;
     blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
+    console.warn(blocks[i].errorCodewords);
   }
   return blocks;
 };

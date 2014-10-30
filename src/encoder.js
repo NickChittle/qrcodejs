@@ -1,7 +1,6 @@
 var input = "Nick Chittle Dec 23 1992"
 var numericInput = "01234567"
-var helloWorld = "HELLO WORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLDWORLD";
-
+var helloWorld = "BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8";
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
     return NUMERIC;
@@ -59,7 +58,9 @@ encode = function(input, ecl) {
   bitString = padWithSpecialBytes(bitString, totalBits);
 
   var codewords = getCodewordsDecimal(bitString);
+  console.warn(codewords);
   var blocks = splitIntoBlocks(codewords, version, ecl);
+  console.warn(blocks);
   blocks = generateErrorCodewords(blocks, version, ecl);
   blocks = convertBlocksToBinary(blocks);
   var interleavedBlocks = interleaveDataAndErrorBlocks(blocks);
@@ -67,7 +68,8 @@ encode = function(input, ecl) {
   bitString = allCodewords.join("");
 
   bitString = padToFullLength(bitString, version);
-  createQRMatrix(version, bitString);
+  var mask = 7
+  createQRMatrix(version, ecl, bitString, mask);
 
   return bitString;
 };

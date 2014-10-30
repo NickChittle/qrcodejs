@@ -36,6 +36,7 @@ encodeAlphanumeric = function(input) {
       num = alphanumericMap[first];
       bin = padFrontWithZeros(convertToBinary(num), 6);
     }
+    console.warn(bin);
     encoded += bin;
   }
   return encoded;

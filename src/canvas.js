@@ -1,5 +1,7 @@
 function Canvas() {
-  this.canvas = document.getElementById('imageCanvas');
+  this.canvas = document.createElement('canvas');
+  this.canvas.style = "padding:50px;";
+  document.body.appendChild(this.canvas);
   this.context = this.canvas.getContext('2d');
 }
 
