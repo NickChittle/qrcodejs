@@ -22,13 +22,15 @@
       </div>
       <div>
         <br/>
+        Input Text:
         <input type="text" id="qrinput" value="Hello World" class="myInput"></input>
         <br/>
+        Error Correction Level:
         <select id="qrecl" class="myInput">
-          <option value="0">ECL_L</option>
-          <option value="1">ECL_M</option>
-          <option value="2">ECL_Q</option>
-          <option value="3">ECL_H</option>
+          <option value="0">ECL_L - 7% Recovery</option>
+          <option value="1">ECL_M - 15% Recovery</option>
+          <option value="2">ECL_Q - 25% Recovery</option>
+          <option value="3">ECL_H - 30% Recovery</option>
         </select>
         <br/>
         <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
