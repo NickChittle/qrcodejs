@@ -1,6 +1,7 @@
 <DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src="canvas.js"></script>
     <script type="text/javascript" src="constants.js"></script>
     <script type="text/javascript" src="errorcorrectioncodewords.js"></script>
@@ -14,22 +15,24 @@
     <script type="text/javascript" src="test.js"></script>
   </head>
   <body onload="init()">
-  <p>My Page</p>
-  <div style="padding:10px;background:#C0C0C0;display:inline-block;">
-    <canvas id='imageCanvas'></canvas>
-  </div>
-  <div>
-    <br/>
-    <input type="text" id="qrinput" value="Hello World" style="margin-top:10px;"></input>
-    <br/>
-    <select id="qrecl" style="margin-top:10px;">
-      <option value="0">ECL_L</option>
-      <option value="1">ECL_M</option>
-      <option value="2">ECL_Q</option>
-      <option value="3">ECL_H</option>
-    </select>
-    <br/>
-    <input type="button" onclick="QRCodeClick();" value="Create QR Code" style="margin-top:10px;"></input>
-  </div>
+    <div class="page">
+      <h1>My QR Code Encoder</h1>
+      <div class="canvasContainer">
+        <canvas id='imageCanvas'></canvas>
+      </div>
+      <div>
+        <br/>
+        <input type="text" id="qrinput" value="Hello World" class="myInput"></input>
+        <br/>
+        <select id="qrecl" class="myInput">
+          <option value="0">ECL_L</option>
+          <option value="1">ECL_M</option>
+          <option value="2">ECL_Q</option>
+          <option value="3">ECL_H</option>
+        </select>
+        <br/>
+        <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
+      </div>
+    </div>
   </body>
 </html>

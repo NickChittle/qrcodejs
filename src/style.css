@@ -1,0 +1,15 @@
+
+.page {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.canvasContainer {
+  padding: 10px;
+  background: #C0C0C0;
+  display: inline-block;
+}
+
+.myInput {
+  margin-top: 10px;
+}
