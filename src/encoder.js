@@ -1,6 +1,6 @@
-var input = "Nick Chittle Dec 23 1992"
 var numericInput = "01234567"
-var helloWorld = "BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8 BITSTRING LENGTH IS NOT A MULTIPLE OF 8";
+var helloWorld = "Hello World";
+
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
     return NUMERIC;
@@ -17,6 +17,7 @@ isValidMode = function(mode) {
 };
 
 encode = function(input, ecl) {
+  input = input.toUpperCase();
   var mode = getEncodeMode(input);
   if (!isValidMode(mode)) {
     console.warn("Invalid Mode: " + mode);
@@ -74,8 +75,15 @@ encode = function(input, ecl) {
   return bitString;
 };
 
+QRCodeClick = function() {
+  var input = document.getElementById("qrinput").value;
+  var ecl = document.getElementById("qrecl").value;
+  console.warn(ecl);
+  encode(input, ecl);
+};
+
 init = function init() {
-  code = encode(helloWorld, ECL_Q);
+  code = encode(helloWorld, ECL_L);
   console.warn(code);
 };
 

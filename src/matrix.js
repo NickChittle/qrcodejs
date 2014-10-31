@@ -347,6 +347,6 @@ createQRMatrix = function(version, ecl, input, mask) {
   addFormatStringToMatrix(formatString, matrix);
   addVersionInfo(version, matrix);
 
-  var canvas = new Canvas();
+  var canvas = new Canvas("imageCanvas");
   canvas.drawMatrix(matrix, 10);
 };

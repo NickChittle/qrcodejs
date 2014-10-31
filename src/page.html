@@ -15,8 +15,21 @@
   </head>
   <body onload="init()">
   <p>My Page</p>
-  <!--<div style="padding:10px;background:#C0C0C0;display:inline-block;">-->
-    <!--<canvas id='imageCanvas'></canvas>-->
-  <!--</div>-->
+  <div style="padding:10px;background:#C0C0C0;display:inline-block;">
+    <canvas id='imageCanvas'></canvas>
+  </div>
+  <div>
+    <br/>
+    <input type="text" id="qrinput" value="Hello World" style="margin-top:10px;"></input>
+    <br/>
+    <select id="qrecl" style="margin-top:10px;">
+      <option value="0">ECL_L</option>
+      <option value="1">ECL_M</option>
+      <option value="2">ECL_Q</option>
+      <option value="3">ECL_H</option>
+    </select>
+    <br/>
+    <input type="button" onclick="QRCodeClick();" value="Create QR Code" style="margin-top:10px;"></input>
+  </div>
   </body>
 </html>
