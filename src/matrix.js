@@ -1,5 +1,5 @@
 
-var alignmentPattern = [
+var alignmentPatternLocations = [
   [0, 0],
   [0, 0], [18, 0], [22, 0], [26, 0], [30, 0], // 1- 5
   [34, 0], [22, 38], [24, 42], [26, 46], [28, 50], // 6-10
@@ -10,6 +10,22 @@ var alignmentPattern = [
   [30, 56], [34, 60], [30, 58], [34, 62], [30, 54], //31-35
   [24, 50], [28, 54], [32, 58], [26, 54], [30, 58], //35-40
   ];
+
+var finderPattern = [
+  [1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1]];
+
+var alignmentPattern = [
+  [1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 1],
+  [1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1]];
 
 var versionPattern = [
   0, 0, 0, 0, 0, 0, 0, 0x07c94, 0x085bc,
@@ -39,20 +55,17 @@ maybeSet = function(x, y, value, matrix) {
 
 addFinderPattern = function(x, y, matrix) {
   for (var i = 0; i < 7; ++i) {
-    matrix[x+i][y] = 1;
-    matrix[x+i][y+6] = 1;
-    matrix[x][y+i] = 1;
-    matrix[x+6][y+i] = 1;
+    for (var j = 0; j < 7; ++j) {
+      matrix[x + i][y + j] = finderPattern[i][j];
+    }
   }
-  for (var i = 0; i < 5; ++i) {
-    matrix[x+1+i][y+1] = 0;
-    matrix[x+1+i][y+5] = 0;
-    matrix[x+1][y+1+i] = 0;
-    matrix[x+5][y+1+i] = 0;
-  }
-  for (var i = 0; i < 3; ++i) {
-    for (var j = 0; j < 3; ++j) {
-      matrix[x+2+i][y+2+j] = 1;
+  return matrix;
+};
+
+removeFinderPattern = function(x, y, matrix) {
+  for (var i = 0; i < 7; ++i) {
+    for (var j = 0; j < 7; ++j) {
+      matrix[x + i][y + j] = -1;
     }
   }
   return matrix;
@@ -86,61 +99,84 @@ addTimingPatterns = function(matrix) {
 };
 
 addAlignmentPattern = function(x, y, matrix) {
-  matrix[x][y] = 1;
-  for (var i = -2; i < 3; ++i) {
-    matrix[x+i][y-2] = 1;
-    matrix[x+i][y+2] = 1;
-    matrix[x-2][y+i] = 1;
-    matrix[x+2][y+i] = 1;
-  }
-  for (var i = -1; i < 2; ++i) {
-    matrix[x+i][y-1] = 0;
-    matrix[x+i][y+1] = 0;
-    matrix[x-1][y+i] = 0;
-    matrix[x+1][y+i] = 0;
+  for (var i = 0; i < 5; ++i) {
+    for (var j = 0; j < 5; ++j) {
+      matrix[x-2+i][y-2+j] = alignmentPattern[i][j];
+    }
   }
   return matrix;
 };
 
-addAlignmentPatterns = function(version, matrix) {
-  if (version < 2) {
-    return matrix;
+removeAlignmentPattern = function(x, y, matrix) {
+  for (var i = 0; i < 5; ++i) {
+    for (var j = 0; j < 5; ++j) {
+      matrix[x-2+i][y-2+j] = -1;
+    }
   }
+  return matrix;
+};
+
+getAlignmentPatternLocations = function(version) {
+  if (version < 2) {
+    return [];
+  }
+  var locations = [];
   var length = getLength(version);
-  var d = alignmentPattern[version][1] - alignmentPattern[version][0];
+  var d = alignmentPatternLocations[version][1] - alignmentPatternLocations[version][0];
   var w = 2;
   if (d >= 0) {
-    w = Math.floor((length - alignmentPattern[version][0]) / d + 2);
+    w = Math.floor((length - alignmentPatternLocations[version][0]) / d + 2);
   }
 
   if (w == 2) {
-    var x = alignmentPattern[version][0];
-    var y = alignmentPattern[version][0];
-    return addAlignmentPattern(x, y, matrix);
+    var x = alignmentPatternLocations[version][0];
+    var y = alignmentPatternLocations[version][0];
+    locations.push([x, y]);
+    return locations;
   }
 
-  var cx = alignmentPattern[version][0];
+  var cx = alignmentPatternLocations[version][0];
   for (var i = 0; i < w - 2; ++i) {
-    matrix = addAlignmentPattern(6, cx + (i*d), matrix);
-    matrix = addAlignmentPattern(cx + (i*d), 6, matrix);
+    locations.push([6, cx + (i * d)]);
+    locations.push([cx + (i * d), 6]);
   }
 
-  var cy = alignmentPattern[version][0];
+  var cy = alignmentPatternLocations[version][0];
   for (var y = 0; y < w - 1; ++y) {
-    var cx = alignmentPattern[version][0];
+    var cx = alignmentPatternLocations[version][0];
     for (var x = 0; x < w - 1; ++x) {
-      matrix = addAlignmentPattern(cx, cy, matrix);
+      locations.push([cx, cy]);
       cx += d;
     }
     cy += d;
   }
+  return locations;
+};
 
+addAlignmentPatterns = function(version, matrix) {
+  locations = getAlignmentPatternLocations(version);
+  for (var i = 0; i < locations.length; ++i) {
+    matrix = addAlignmentPattern(locations[i][0], locations[i][1], matrix);
+  }
+  return matrix;
+};
+
+removeAlignmentPatterns = function(version, matrix) {
+  locations = getAlignmentPatternLocations(version);
+  for (var i = 0; i < locations.length; ++i) {
+    matrix = removeAlignmentPattern(locations[i][0], locations[i][1], matrix);
+  }
   return matrix;
 };
 
 addDarkModule = function(matrix) {
   var length = matrix.length;
   matrix[8][length-8] = 1;
+};
+
+removeDarkModule = function(matrix) {
+  var length = matrix.length;
+  matrix[8][length-8] = -1;
 };
 
 addReservedAreas = function(version, matrix) {
@@ -347,6 +383,5 @@ createQRMatrix = function(version, ecl, input, mask) {
   addFormatStringToMatrix(formatString, matrix);
   addVersionInfo(version, matrix);
 
-  var canvas = new Canvas("imageCanvas");
-  canvas.drawMatrix(matrix, 10);
+  return matrix;
 };

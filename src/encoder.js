@@ -1,5 +1,5 @@
 var numericInput = "01234567"
-var helloWorld = "Hello World";
+var helloWorld = "Hello World This is a test to try and get to version 2";
 
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
@@ -69,21 +69,26 @@ encode = function(input, ecl) {
   bitString = allCodewords.join("");
 
   bitString = padToFullLength(bitString, version);
-  var mask = 7
-  createQRMatrix(version, ecl, bitString, mask);
+  var mask = 7;
 
-  return bitString;
+  var matrix = createQRMatrix(version, ecl, bitString, mask);
+
+  return matrix;
+};
+
+createQRCode = function(input, ecl) {
+  matrix = encode(input, ECL_L);
+  var canvas = new Canvas("imageCanvas");
+  canvas.drawMatrix(matrix, 10);
 };
 
 QRCodeClick = function() {
   var input = document.getElementById("qrinput").value;
   var ecl = document.getElementById("qrecl").value;
-  console.warn(ecl);
-  encode(input, ecl);
+  createQRCode(input, ecl);
 };
 
 init = function init() {
-  code = encode(helloWorld, ECL_L);
-  console.warn(code);
+  createQRCode(helloWorld, ECL_L);
 };
 
