@@ -245,18 +245,6 @@ addReservedAreas = function(version, matrix) {
   return matrix;
 };
 
-nextSpot = function(state) {
-  if (state.column == 1) {
-    state.x--;
-    state.column = 2;
-  } else {
-    state.column = 1;
-    state.x++;
-    state.y += state.direction;
-  }
-  return state;
-};
-
 getMaskedBit = function(bit, x, y, maskNumber) {
   switch(maskNumber) {
     case 0:
@@ -303,32 +291,67 @@ getMaskedBit = function(bit, x, y, maskNumber) {
   return bit;
 };
 
+nextSpot = function(state) {
+  if (state.column == 1) {
+    state.x--;
+    state.column = 2;
+  } else {
+    state.column = 1;
+    state.x++;
+    state.y += state.direction;
+  }
+  return state;
+};
+
+moveState = function(state) {
+  state = nextSpot(state);
+  // We hit the edge, move over and change directions.
+  if (state.y < 0 || state.y >= length) {
+    state.x -= 2;
+    if (state.x == 6) {
+      // Don't overlap with vertical timing pattern
+      state.x--;
+    }
+    state.direction *= -1;
+    // Get back on board.
+    state.y += state.direction;
+  }
+  return state;
+};
+
 addDataBits = function(bitString, matrix, maskNumber) {
   var length = matrix.length;
   var state = {"x": length-1, "y": length-1, "column": 1, "direction": -1};
-  matrix[state.x][state.y] = getMaskedBit(bitString[0], state.x, state.y, maskNumber);
-  for (var i = 1; i < bitString.length; ++i) {
+  for (var i = 0; i < bitString.length; ++i) {
     while (matrix[state.x][state.y] != -1) {
-      state = nextSpot(state);
-      // We hit the edge, move over and change directions.
-      if (state.y < 0 || state.y >= length) {
-        state.x -= 2;
-        if (state.x == 6) {
-          // Don't overlap with vertical timing pattern
-          state.x--;
-        }
-        state.direction *= -1;
-        // Get back on board.
-        state.y += state.direction;
-      }
+      moveState(state);
       if (state.x < 0) {
-        console.warn("Something Weird Happened");
+        console.warn("addDataBits: Something Weird Happened");
         return matrix;
       }
     }
     matrix[state.x][state.y] = getMaskedBit(bitString[i], state.x, state.y, maskNumber);
   };
   return matrix;
+};
+
+getDataBits = function(version, maskNumber, matrix) {
+  bitString = "";
+  var length = matrix.length;
+  var state = {"x": length-1, "y": length-1, "column": 1, "direction": -1};
+  var dataModulesCount = getDataModulesCount(version);
+  for (var i = 0; i < dataModulesCount; ++i) {
+    while (matrix[state.x][state.y] == -1) {
+      state = moveState(state);
+      if (state.x < 0) {
+        console.warn("getDataBits: Something Weird Happened");
+        return matrix;
+      }
+    }
+    bitString += getMaskedBit(matrix[state.x][state.y], state.x, state.y, maskNumber);
+    matrix[state.x][state.y] = -1;
+  };
+  return bitString;
 };
 
 getDecimalBit = function(bit) {
@@ -522,6 +545,7 @@ createQRMatrix = function(version, ecl, input, mask) {
   addDarkModule(matrix);
   addReservedAreas(version, matrix);
 
+  console.warn(input);
   addDataBits(input, matrix, mask);
 
   formatString = createFormatString(ecl, mask);

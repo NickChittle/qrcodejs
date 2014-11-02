@@ -38,6 +38,7 @@ decode = function(matrix) {
   verifyVersionInfo(version, matrix);
   removeVersionInfo(version, matrix);
 
-  console.warn(version);
+  bitString = getDataBits(version, maskNumber, matrix);
+  console.warn(bitString);
 };
 
