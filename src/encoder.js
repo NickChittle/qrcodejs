@@ -65,7 +65,7 @@ encode = function(input, ecl) {
   bitString = allCodewords.join("");
 
   bitString = padToFullLength(bitString, version);
-  var mask = 7;
+  var mask = 5;
 
   var matrix = createQRMatrix(version, ecl, bitString, mask);
 

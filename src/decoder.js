@@ -5,16 +5,7 @@ getVersion = function(matrix) {
   return (matrix.length - 17) / 4;
 };
 
-decode = function(matrix) {
-  var version = getVersion(matrix);
-  //removeFinderPatterns(version, matrix);
-  //removeAlignmentPatterns(version, matrix);
-  //removeDarkModule(matrix);
-
-  //removeSeparators(matrix);
-  removeTimingPatterns(matrix);
-  var formatString = getFormatStringFromMatrix(matrix);
-  console.warn(formatString);
+getEclFromFormatString = function(formatString) {
   var eclBits = formatString.substring(0, 2);
   var ecl = -1;
   for (var i = 0; i < eclFormatStringBits.length; ++i) {
@@ -22,10 +13,30 @@ decode = function(matrix) {
       ecl = i;
     }
   }
-  console.warn(ecl);
-  //removeFormatString();
-  //getVersionInfo();
-  //removeVersionInfo();
+  return ecl;
+};
+
+getMaskNumberFromFormatString = function(formatString) {
+  var maskBits = formatString.substring(2, 5);
+  return convertToDecimal(maskBits);
+};
+
+decode = function(matrix) {
+  var version = getVersion(matrix);
+  removeFinderPatterns(version, matrix);
+  removeAlignmentPatterns(version, matrix);
+  removeDarkModule(matrix);
+
+  removeSeparators(matrix);
+  removeTimingPatterns(matrix);
+
+  var formatString = getFormatStringFromMatrix(matrix);
+  var ecl = getEclFromFormatString(formatString);
+  var maskNumber = getMaskNumberFromFormatString(formatString);
+  removeFormatStringFromMatrix(matrix);
+
+  verifyVersionInfo(version, matrix);
+  removeVersionInfo(version, matrix);
 
   console.warn(version);
 };

@@ -357,6 +357,7 @@ createFormatString = function(ecl, maskNumber) {
 };
 
 addFormatStringToMatrix = function(formatString, matrix) {
+  var length = matrix.length;
   formatString = formatString.split("").reverse().join("");
   for (var i = 0; i < 6; ++i) {
     matrix[8][i] = formatString[i];
@@ -377,10 +378,32 @@ addFormatStringToMatrix = function(formatString, matrix) {
   return matrix;
 };
 
+removeFormatStringFromMatrix = function(matrix) {
+  var length = matrix.length;
+  for (var i = 0; i < 6; ++i) {
+    matrix[8][i] = -1;
+    matrix[length-i-1][8] = -1;
+  }
+
+  for (var i = 0; i < 2; ++i) {
+    matrix[8][7 + i] = -1;
+    matrix[length - 7 - i][8] = -1;
+  }
+
+  matrix[7][8] = -1;
+  matrix[8][length-7] = -1;
+  for (var i = 0; i < 6; ++i) {
+    matrix[5-i][8] = -1;
+    matrix[8][length-6+i] = -1;
+  }
+  return matrix;
+};
+
 getFormatStringFromMatrix = function(matrix) {
   // The format string is put into the matrix twice. Once in the along the top
   // left Finder Pattern, and the second one is split up between the remaining
   // two finder patterns.
+  var length = matrix.length;
   var formatString1 = "";
   var formatString2 = "";
 
@@ -417,6 +440,7 @@ addVersionInfo = function(version, matrix) {
   if (version < 7) {
     return;
   }
+  var length = matrix.length;
 
   var versionString = padFrontWithZeros(convertToBinary(versionPattern[version]), 18);
   versionString = versionString.split("").reverse().join("");
@@ -429,6 +453,49 @@ addVersionInfo = function(version, matrix) {
   }
 
   return matrix;
+};
+
+removeVersionInfo = function(version, matrix) {
+  if (version < 7) {
+    return;
+  }
+  var length = matrix.length;
+
+  for (var i = 0; i < 6; ++i) {
+    for (var j = 0; j < 3; ++j) {
+      matrix[length-11+j][i] = -1;
+      matrix[i][length-11+j] = -1;
+    }
+  }
+
+  return matrix;
+}
+
+verifyVersionInfo = function(version, matrix) {
+  if (version < 7) {
+    return true;
+  }
+  versionInfo1 = "";
+  versionInfo2 = "";
+  for (var i = 0; i < 6; ++i) {
+    for (var j = 0; j < 3; ++j) {
+      versionInfo1 += matrix[length-11+j][i];
+      versionInfo2 += matrix[i][length-11+j];
+    }
+  }
+  if (versionInfo1 != versionInfo2) {
+    console.warn("The two version infos do not match");
+    return false;
+  }
+  var correctVersionString = padFrontWithZeros(convertToBinary(versionPattern[version]), 18);
+  correctVersionString = correctVersionString.split("").reverse().join("");
+  if (correctVersionString != versionInfo1) {
+    console.warn("Version Info Is Incorrect");
+    console.warn("Should Be: " + correctVersionString);
+    console.warn("Actually Is: " + versionInfo1);
+    return false;
+  }
+  return true;
 };
 
 printMatrix = function(matrix) {
