@@ -27,6 +27,9 @@ var alignmentPattern = [
   [1, 0, 0, 0, 1],
   [1, 1, 1, 1, 1]];
 
+var eclFormatStringBits = ["01", "00", "11", "10"];
+var magicMaskForFormatStr = convertToDecimal("101010000010010");
+
 var versionPattern = [
   0, 0, 0, 0, 0, 0, 0, 0x07c94, 0x085bc,
   0x09a99, 0x0a4d3, 0x0bbf6, 0x0c762, 0x0d847, 0x0e60d, 0x0f928, 0x10b78,
@@ -335,11 +338,9 @@ getDecimalBit = function(bit) {
   return 0;
 };
 
-getFormatString = function(ecl, maskNumber) {
-  var eclBits = ["01", "00", "11", "10"];
-  var magicMaskForFormatStr = convertToDecimal("101010000010010");
+createFormatString = function(ecl, maskNumber) {
   var maskBinary = padFrontWithZeros(convertToBinary(maskNumber), 3);
-  var data = eclBits[ecl] + maskBinary;
+  var data = eclFormatStringBits[ecl] + maskBinary;
   var polyData = [
       getDecimalBit(data.charAt(0)),
       getDecimalBit(data.charAt(1)),
@@ -361,11 +362,11 @@ addFormatStringToMatrix = function(formatString, matrix) {
     matrix[8][i] = formatString[i];
     matrix[length-i-1][8] = formatString.charAt(i);
   }
-  matrix[8][7] = formatString.charAt(6);
-  matrix[8][8] = formatString.charAt(7);
 
-  matrix[length - 7][8] = formatString.charAt(6);
-  matrix[length - 8][8] = formatString.charAt(7);
+  for (var i = 0; i < 2; ++i) {
+    matrix[8][7 + i] = formatString.charAt(6 + i);
+    matrix[length - 7 - i][8] = formatString.charAt(6 + i);
+  }
 
   matrix[7][8] = formatString.charAt(8);
   matrix[8][length-7] = formatString.charAt(8);
@@ -374,6 +375,42 @@ addFormatStringToMatrix = function(formatString, matrix) {
     matrix[8][length-6+i] = formatString.charAt(9+i);
   }
   return matrix;
+};
+
+getFormatStringFromMatrix = function(matrix) {
+  // The format string is put into the matrix twice. Once in the along the top
+  // left Finder Pattern, and the second one is split up between the remaining
+  // two finder patterns.
+  var formatString1 = "";
+  var formatString2 = "";
+
+  for (var i = 0; i < 6; ++i) {
+    formatString1 += matrix[8][i];
+    formatString2 += matrix[length-i-1][8];
+  }
+
+  for (var i = 0; i < 2; ++i) {
+    formatString1 += matrix[8][7 + i];
+    formatString2 += matrix[length - 7 - i][8];
+  }
+
+  formatString1 += matrix[7][8];
+  formatString2 += matrix[8][length-7];
+
+  for (var i = 0; i < 6; ++i) {
+    formatString1 += matrix[5-i][8];
+    formatString2 += matrix[8][length-6+i];
+  }
+
+  if (formatString1 != formatString2) {
+    console.warn("Format Strings are different");
+    return "";
+  }
+  var reverseFormatString = formatString1.split("").reverse().join("");
+  var num = convertToDecimal(reverseFormatString);
+  num ^= magicMaskForFormatStr;
+
+  return padFrontWithZeros(convertToBinary(num), 15);
 };
 
 addVersionInfo = function(version, matrix) {
@@ -420,7 +457,7 @@ createQRMatrix = function(version, ecl, input, mask) {
 
   addDataBits(input, matrix, mask);
 
-  formatString = getFormatString(ecl, mask);
+  formatString = createFormatString(ecl, mask);
   addFormatStringToMatrix(formatString, matrix);
   addVersionInfo(version, matrix);
 

@@ -13,7 +13,16 @@ decode = function(matrix) {
 
   //removeSeparators(matrix);
   removeTimingPatterns(matrix);
-  //getFormatString();
+  var formatString = getFormatStringFromMatrix(matrix);
+  console.warn(formatString);
+  var eclBits = formatString.substring(0, 2);
+  var ecl = -1;
+  for (var i = 0; i < eclFormatStringBits.length; ++i) {
+    if (eclBits == eclFormatStringBits[i]) {
+      ecl = i;
+    }
+  }
+  console.warn(ecl);
   //removeFormatString();
   //getVersionInfo();
   //removeVersionInfo();

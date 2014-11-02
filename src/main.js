@@ -1,10 +1,10 @@
 var inputText = "Hello World This is a test";
-var ecl = ECL_L;
+var ecl = ECL_H;
 var inputTextElement;
 var eclInputElement;
 
 createQRCode = function(input, ecl) {
-  matrix = encode(input, ECL_L);
+  matrix = encode(input, ecl);
   var encodeCanvas = new Canvas("imageCanvas");
   encodeCanvas.drawMatrix(matrix, 10);
 
