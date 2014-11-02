@@ -7,6 +7,17 @@ getVersion = function(matrix) {
 
 decode = function(matrix) {
   var version = getVersion(matrix);
+  //removeFinderPatterns(version, matrix);
+  //removeAlignmentPatterns(version, matrix);
+  //removeDarkModule(matrix);
+
+  //removeSeparators(matrix);
+  removeTimingPatterns(matrix);
+  //getFormatString();
+  //removeFormatString();
+  //getVersionInfo();
+  //removeVersionInfo();
+
   console.warn(version);
 };
 

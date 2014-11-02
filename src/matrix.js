@@ -62,12 +62,28 @@ addFinderPattern = function(x, y, matrix) {
   return matrix;
 };
 
+addFinderPatterns = function(version, matrix) {
+  var length = getLength(version);
+  addFinderPattern(0, 0, matrix);
+  addFinderPattern(length-7, 0, matrix);
+  addFinderPattern(0, length-7, matrix);
+  return matrix;
+}
+
 removeFinderPattern = function(x, y, matrix) {
   for (var i = 0; i < 7; ++i) {
     for (var j = 0; j < 7; ++j) {
       matrix[x + i][y + j] = -1;
     }
   }
+  return matrix;
+};
+
+removeFinderPatterns = function(version, matrix) {
+  var length = getLength(version);
+  removeFinderPattern(0, 0, matrix);
+  removeFinderPattern(length-7, 0, matrix);
+  removeFinderPattern(0, length-7, matrix);
   return matrix;
 };
 
@@ -86,6 +102,21 @@ addSeparators = function(matrix) {
   return matrix;
 };
 
+removeSeparators = function(matrix) {
+  var length = matrix.length;
+  for (var i = 0; i < 8; ++i) {
+    matrix[i][7] = -1;
+    matrix[7][i] = -1;
+
+    matrix[length-8][i] = -1;
+    matrix[length-i-1][7] = -1;
+
+    matrix[i][length-8] = -1;
+    matrix[7][length-i] = -1;
+  }
+  return matrix;
+};
+
 addTimingPatterns = function(matrix) {
   length = matrix.length;
   var color = 1;
@@ -94,6 +125,15 @@ addTimingPatterns = function(matrix) {
     maybeSet(6, i, color, matrix);
     maybeSet(i, 6, color, matrix);
     color = 1 - color;
+  }
+  return matrix;
+};
+
+removeTimingPatterns = function(matrix) {
+  length = matrix.length;
+  for (var i = 8; i < length - 8; ++i) {
+    matrix[6][i] = -1;
+    matrix[i][6] = -1;
   }
   return matrix;
 };
@@ -180,6 +220,7 @@ removeDarkModule = function(matrix) {
 };
 
 addReservedAreas = function(version, matrix) {
+  // Areas for version and format info.
   var length = getLength(version);
   for (var i = 0; i < 8; ++i) {
     maybeSet(i, 8, 2, matrix);
@@ -369,16 +410,16 @@ printMatrix = function(matrix) {
 createQRMatrix = function(version, ecl, input, mask) {
   var length = getLength(version);
   var matrix = createMatrix(length, length);
-  addFinderPattern(0, 0, matrix);
-  addFinderPattern(length-7, 0, matrix);
-  addFinderPattern(0, length-7, matrix);
+
+  addFinderPatterns(version, matrix);
   addSeparators(matrix);
   addAlignmentPatterns(version, matrix);
   addTimingPatterns(matrix);
   addDarkModule(matrix);
   addReservedAreas(version, matrix);
-  //var mask = 0;
+
   addDataBits(input, matrix, mask);
+
   formatString = getFormatString(ecl, mask);
   addFormatStringToMatrix(formatString, matrix);
   addVersionInfo(version, matrix);
