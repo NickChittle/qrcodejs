@@ -59,9 +59,7 @@ encode = function(input, ecl) {
   bitString = padWithSpecialBytes(bitString, totalBits);
 
   var codewords = getCodewordsDecimal(bitString);
-  console.warn(codewords);
   var blocks = splitIntoBlocks(codewords, version, ecl);
-  console.warn(blocks);
   blocks = generateErrorCodewords(blocks, version, ecl);
   blocks = convertBlocksToBinary(blocks);
   var interleavedBlocks = interleaveDataAndErrorBlocks(blocks);
@@ -87,8 +85,3 @@ QRCodeClick = function() {
   var ecl = document.getElementById("qrecl").value;
   createQRCode(input, ecl);
 };
-
-init = function init() {
-  createQRCode(helloWorld, ECL_L);
-};
-

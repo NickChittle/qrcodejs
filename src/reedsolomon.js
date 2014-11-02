@@ -76,11 +76,9 @@ rs_encode_msg_with_gen = function(msg_in, nsym, gen){
 generateErrorCodewords = function(blocks, version, ecl) {
   var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
   var errorCodewordsPerBlock = errorCodewordsCount / blocks.length;
-  console.warn(version, ecl, errorCodewordsCount);
   for (var i = 0; i < blocks.length; ++i) {
     dataCW = blocks[i].dataCodewords;
     blocks[i].errorCodewords = rs_encode_msg(dataCW, errorCodewordsPerBlock);
-    console.warn(blocks[i].errorCodewords);
   }
   return blocks;
 };
