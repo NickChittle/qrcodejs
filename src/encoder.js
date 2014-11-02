@@ -1,5 +1,3 @@
-var numericInput = "01234567"
-var helloWorld = "Hello World This is a test to try and get to version 2";
 
 getEncodeMode = function(input) {
   if (isNumeric(input)) {
@@ -72,16 +70,4 @@ encode = function(input, ecl) {
   var matrix = createQRMatrix(version, ecl, bitString, mask);
 
   return matrix;
-};
-
-createQRCode = function(input, ecl) {
-  matrix = encode(input, ECL_L);
-  var canvas = new Canvas("imageCanvas");
-  canvas.drawMatrix(matrix, 10);
-};
-
-QRCodeClick = function() {
-  var input = document.getElementById("qrinput").value;
-  var ecl = document.getElementById("qrecl").value;
-  createQRCode(input, ecl);
 };
