@@ -1,7 +1,7 @@
 QRCodeJS
 ========
 
-Project can be easily demonstarted on a Linux computer by executing src/server.sh
+Project can be easily demonstrated on a Linux computer by executing src/server.sh
 and navigating to http://localhost:8080/page.html on a browser.
 
 To test that the QR encodes correctly you can right-click on the image and
@@ -10,7 +10,6 @@ http://zxing.org/w/decode.jspx
 
 
 TODO:
-
 Encoding
   - Determing the best mask pattern using the evaluations conditions. Currently we just use any mask pattern.
 
