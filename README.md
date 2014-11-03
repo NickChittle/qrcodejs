@@ -11,6 +11,8 @@ http://zxing.org/w/decode.jspx
 
 TODO:
 
+Encode and Decode Byte Mode (Currently supports Numeric and Alphanumeric).
+
 Encoding
   - Determing the best mask pattern using the evaluations conditions. Currently we just use any mask pattern.
 
