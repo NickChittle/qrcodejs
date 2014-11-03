@@ -9,8 +9,6 @@ createQRCode = function(input, ecl) {
   encodeCanvas.drawMatrix(matrix, 10);
 
   decode(matrix);
-  var decodeCanvas = new Canvas("imageCanvas2");
-  decodeCanvas.drawMatrix(matrix, 10);
 };
 
 QRCodeClick = function() {
