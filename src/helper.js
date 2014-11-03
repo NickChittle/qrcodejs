@@ -124,23 +124,12 @@ getMinimumVersion = function(inputLength, mode, ecl) {
 };
 
 getModeIndicator = function(mode) {
-  switch(mode) {
-    case NUMERIC:
-      return "0001";
-      break;
-    case ALPHANUMERIC:
-      return "0010";
-      break;
-    case BYTE:
-      return "0100";
-      break;
-    case KANJI:
-      return "1000";
-      break;
-    default:
-      console.warn("getModeIndicator: Unrecognized Mode: " + mode);
-  }
+  return modeIndicators[mode];
 }
+
+getModeFromIndicator = function(modeIndicator) {
+  return inverseModeIndicator[modeIndicator];
+};
 
 getCharacterCountIndicatorBitLength = function(version, mode) {
   if (version < 1 || version > 40) {

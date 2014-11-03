@@ -45,7 +45,7 @@ eccTable = [
 splitIntoBlocks = function(codewords, version, ecl) {
   var blocks = [];
   var blockInfo = eccTable[version-1][ecl];
-  blockSize = Math.floor(codewords.length / (blockInfo[0] + blockInfo[1]));
+  var blockSize = Math.floor(codewords.length / (blockInfo[0] + blockInfo[1]));
   var start = 0;
   for (var i = 0; i < blockInfo[0]; ++i) {
     var end = start + blockSize;
@@ -86,6 +86,45 @@ interleaveBlocks = function(blocks) {
     }
   }
   return codewords;
+};
+
+uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
+  var blockInfo = eccTable[version-1][ecl];
+  var dataCodewordsCount = getDataCodewords(version, ecl);
+  var interleavedData = bitString.substring(0, dataCodewordsCount * 8);
+  var interleavedError = bitString.substring(dataCodewordsCount * 8);
+
+  // Data Codewords
+  var blocks = blockInfo[0] + blockInfo[1];
+  var blockSize = Math.floor(dataCodewordsCount / blocks);
+  var dataString = "";
+  for (var i = 0; i < blockInfo[0]; ++i) {
+    for (var j = 0; j < blockSize; ++j) {
+      var pos = (j * 8) + (i * 8);
+      dataString += interleavedData.substring(pos, pos + 8);
+    }
+  }
+  blockSize++;
+  for (var i = blockInfo[0]; i < blockInfo[0] + blockInfo[1]; ++i) {
+    for (var j = 0; j < blockSize; ++j) {
+      var pos = (j * 8) + (i * 8);
+      dataString += interleavedData.substring(pos, pos + 8);
+    }
+  }
+
+  // Error Correction Codewords
+  var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
+  var errorCodewordsPerBlock = errorCodewordsCount / blocks;
+
+  var errorString = "";
+  for (var i = 0; i < blocks; ++i) {
+    for (var j = 0; j < errorCodewordsPerBlock; ++j) {
+      var pos = (j * 8) + (i * 8);
+      errorString += interleavedError.substring(pos, pos + 8);
+    }
+  }
+
+  return {data: dataString, error: errorString};
 };
 
 convertBlocksToBinary = function(blocks) {

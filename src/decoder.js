@@ -21,6 +21,23 @@ getMaskNumberFromFormatString = function(formatString) {
   return convertToDecimal(maskBits);
 };
 
+decodeDataByMode = function(data, mode, charCount) {
+  var decodedData = "";
+  switch(mode) {
+    case NUMERIC:
+      decodedData = decodeNumeric(data, charCount);
+      break;
+    case ALPHANUMERIC:
+      decodedData = decodeAlphanumeric(data, charCount);
+      break;
+    case BYTE:
+      break;
+    case KANJI:
+      break;
+  }
+  return decodedData;
+}
+
 decode = function(matrix) {
   var version = getVersion(matrix);
   removeFinderPatterns(version, matrix);
@@ -38,7 +55,21 @@ decode = function(matrix) {
   verifyVersionInfo(version, matrix);
   removeVersionInfo(version, matrix);
 
-  bitString = getDataBits(version, maskNumber, matrix);
-  console.warn(bitString);
+  var bitString = getDataBits(version, maskNumber, matrix);
+  var o = uninterleaveDataAndErrorStrings(bitString, version, ecl);
+
+  var dataString = o.data;
+  var errorString = o.error;
+
+  var modeIndicator = dataString.substring(0, 4);
+  var mode = getModeFromIndicator(modeIndicator);
+
+  var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, mode);
+  var charCount = convertToDecimal(dataString.substring(4, 4 + charCountIndicatorLength));
+  var encodedData = dataString.substring(4 + charCountIndicatorLength);
+
+  var text = decodeDataByMode(encodedData, mode, charCount);
+  console.warn(text);
+  console.warn(mode);
 };
 

@@ -545,7 +545,6 @@ createQRMatrix = function(version, ecl, input, mask) {
   addDarkModule(matrix);
   addReservedAreas(version, matrix);
 
-  console.warn(input);
   addDataBits(input, matrix, mask);
 
   formatString = createFormatString(ecl, mask);
