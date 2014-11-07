@@ -26,5 +26,8 @@ init = function init() {
   eclInputElement.value = ecl;
 
   QRCodeClick();
+
+  var bitmap = getGrayscaleBitmap();
+  findFinderPattern(bitmap);
 };
 
