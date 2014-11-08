@@ -14,25 +14,21 @@ getMiddleBrightness = function(imageMatrix) {
   return (min + max) / 2;
 };
 
-getGrayscaleBitmap = function(image) {
-  //var canvas = document.createElement('canvas');
-  var canvas = document.getElementById("imageCanvas");
+getGreyscaleBitmap = function(image) {
+  var canvas = document.createElement('canvas');
   var context = canvas.getContext('2d');
-  //context.drawImage(image, 0, 0 );
-  var width = canvas.width;
-  var height = canvas.height;
+  var width = image.width;
+  var height = image.height;
+  canvas.width = width;
+  canvas.height = height;
+  context.drawImage(image, 0, 0, width, height);
   var myData = context.getImageData(0, 0, width, height);
+
   var greyScale = [];
   var ret = [];
   for (var x = 0; x < width; ++x) {
     ret.push(new Array(height));
     greyScale.push(new Array(height));
-  }
-  for (var x = 0; x < width; ++x) {
-    for (var y = 0; y < height; ++y) {
-      var point = x * 4 + y * width * 4;
-      ret[x][y] = (myData.data[point]*33 + myData.data[point + 1] * 34 + myData.data[point + 2] * 33 ) / 100;
-    }
   }
 
   for (var x = 0; x < width; ++x) {
@@ -41,6 +37,7 @@ getGrayscaleBitmap = function(image) {
       greyScale[x][y] = (myData.data[point]*33 + myData.data[point + 1] * 34 + myData.data[point + 2] * 33 ) / 100;
     }
   }
+
 
   var middle = getMiddleBrightness(greyScale);
 
@@ -86,13 +83,6 @@ isFinderPattern = function(pixelCount) {
   }
 };
 
-findCenter = function(state, x, y) {
-  var middleWidth = state.pixelCount[2];
-  var cx = Math.round(x - (state.pixelCount[4] + state.pixelCount[3] + (middleWidth / 2)));
-  var cy = Math.round(y + (middleWidth / 2));
-  return {cx: cx, cy: cy};
-};
-
 changeState = function(bit, state) {
   if (bit == 1) {
     // Black Pixel
@@ -103,34 +93,141 @@ changeState = function(bit, state) {
     state.pixelCount[state.currentState]++;
   } else {
     // White Pixel.
+    if (state.currentState == 0 && state.pixelCount[state.currentState] == 0) {
+      return;
+    }
     if (state.currentState != 1 && state.currentState != 3) {
       // We were previously looking at black pixels, move on.
       state.currentState++;
     }
     if (state.currentState >= 5) {
-      // Check if it matches pattern.
-      if (isFinderPattern(state.pixelCount)){
-        return true;
-      }
+      return;
     }
     state.pixelCount[state.currentState]++;
   }
-  return false;
 };
 
-findFinderPattern = function(bitmap) {
-  var skip = 1;
+findTopLeftCenter = function(bitmap) {
   var width = bitmap.length;
   var height = bitmap[0].length;
   state = {currentState: 0, pixelCount: new Array(5)};
-  for (var y = 0; y < height; y+=skip) {
+  for (var y = 0; y < height; ++y) {
     state.currentState = 0;
     zeroArray(state.pixelCount);
     for (var x = 0; x < width; ++x) {
-      if (changeState(bitmap[x][y], state)) {
-        console.warn(findCenter(state, x, y));
-        return;
+      changeState(bitmap[x][y], state);
+      if (state.currentState >= 5) {
+        var result = isFinderPattern(state.pixelCount);
+        if (result) {
+          var middleWidth = state.pixelCount[2];
+          var cx = Math.round(x - (state.pixelCount[4] + state.pixelCount[3] + (middleWidth / 2)));
+          var cy = Math.round(y + (middleWidth / 2));
+          return {cx: cx, cy: cy, modulesize: result};
+        } else {
+          break;
+        }
       }
     }
   }
+  return undefined;
+};
+
+findTopRightCenter = function(bitmap) {
+  var width = bitmap.length;
+  var height = bitmap[0].length;
+  state = {currentState: 0, pixelCount: new Array(5)};
+  for (var y = 0; y < height; ++y) {
+    state.currentState = 0;
+    zeroArray(state.pixelCount);
+    for (var x = width-1; x >= 0; --x) {
+      changeState(bitmap[x][y], state);
+      if (state.currentState >= 5) {
+        var result = isFinderPattern(state.pixelCount);
+        if (result) {
+          var middleWidth = state.pixelCount[2];
+          var cx = Math.round(x + state.pixelCount[4] + state.pixelCount[3] + (middleWidth / 2));
+          var cy = Math.round(y + (middleWidth / 2));
+          return {cx: cx, cy: cy, modulesize: result};
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return undefined;
+};
+
+findBottomLeftCenter = function(bitmap) {
+  var width = bitmap.length;
+  var height = bitmap[0].length;
+  state = {currentState: 0, pixelCount: new Array(5)};
+  for (var y = height-1; y >= 0; --y) {
+    state.currentState = 0;
+    zeroArray(state.pixelCount);
+    for (var x = 0; x < width; ++x) {
+      changeState(bitmap[x][y], state);
+      if (state.currentState >= 5) {
+        var result = isFinderPattern(state.pixelCount);
+        if (result) {
+          var middleWidth = state.pixelCount[2];
+          var cx = Math.round(x - (state.pixelCount[4] + state.pixelCount[3] + (middleWidth / 2)));
+          var cy = Math.round(y - (middleWidth / 2));
+          return {cx: cx, cy: cy, modulesize: result};
+        } else {
+          break;
+        }
+      }
+    }
+  }
+};
+
+findFinderPatterns = function(bitmap) {
+  var width = bitmap.length;
+  var height = bitmap[0].length;
+  state = {currentState: 0, pixelCount: new Array(5)};
+
+  // Find top-left center.
+  var topleft = findTopLeftCenter(bitmap);
+
+  // Find top-right center.
+  var topright = findTopRightCenter(bitmap);
+
+  // Find bottom-left center.
+  var bottomleft = findBottomLeftCenter(bitmap);
+
+  return {topleft: topleft, topright: topright, bottomleft: bottomleft };
+};
+
+getMatrixFromImage = function(image) {
+  var bitmap = getGreyscaleBitmap(image);
+  var centers = findFinderPatterns(bitmap);
+  if (!centers.topleft || !centers.topright || !centers.bottomleft) {
+    console.warn("Could not find a finder pattern:");
+    console.warn(centers);
+    return false;
+  }
+  // Verify module sizes
+  var moduleSize = Math.round((centers.topleft.modulesize + centers.topright.modulesize + centers.bottomleft.modulesize) / 3);
+  var topLength = Math.round((centers.topright.cx - centers.topleft.cx) / moduleSize) + 7;
+  var leftLength = Math.round((centers.bottomleft.cy - centers.topleft.cy) / moduleSize) + 7;
+  if (topLength != leftLength) {
+    console.warn("Cannot agree on module size from centers");
+    console.warn("TopLength: " + topLength +", LeftLength: " + leftLength);
+    return false;
+  }
+  var length = topLength;
+  var matrix = [];
+  // We want to start in the middle of a module.
+  // Left edge of QR Code is cx - moduleSize * 3.5, but we add another
+  // 0.5 * moduleSize to get to the center of the first module.
+  var startX = centers.topleft.cx - (moduleSize * 3);
+  var startY = centers.topleft.cy - (moduleSize * 3);
+  for (var x = startX; x < startX + (length * moduleSize); x += moduleSize) {
+    var column = [];
+    for (var y = startY; y < startY + (length * moduleSize); y += moduleSize) {
+      column.push(bitmap[x][y]);
+    }
+    matrix.push(column);
+  }
+  return matrix;
 };

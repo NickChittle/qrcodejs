@@ -20,25 +20,39 @@
   <body onload="init()">
     <div class="page">
       <h1>My QR Code Encoder</h1>
-      <div class="canvasContainer">
-        <h2>Encoded Text</h2>
-        <canvas id='imageCanvas'></canvas>
-      </div>
-      <div>
-        <br/>
-        Text to Encode:
-        <input type="text" id="qrinput" value="Hello World" class="myInput"></input>
-        <br/>
-        Error Correction Level:
-        <select id="qrecl" class="myInput">
-          <option value="0">ECL_L - 7% Recovery</option>
-          <option value="1">ECL_M - 15% Recovery</option>
-          <option value="2">ECL_Q - 25% Recovery</option>
-          <option value="3">ECL_H - 30% Recovery</option>
-        </select>
-        <br/>
-        <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
-      </div>
+      <table>
+        <tr>
+          <td>
+            <div class="canvasContainer">
+              <h2>Encoded Text</h2>
+              <canvas id='imageCanvas'></canvas>
+            </div>
+            <div>
+              <br/>
+              Text to Encode:
+              <input type="text" id="qrinput" value="Hello World" class="myInput"></input>
+              <br/>
+              Error Correction Level:
+              <select id="qrecl" class="myInput">
+                <option value="0">ECL_L - 7% Recovery</option>
+                <option value="1">ECL_M - 15% Recovery</option>
+                <option value="2">ECL_Q - 25% Recovery</option>
+                <option value="3">ECL_H - 30% Recovery</option>
+              </select>
+              <br/>
+              <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
+            </div>
+          </td>
+          <td>
+            <div>
+              <img id='qrdecodeimagepreview'>
+              <br>
+              <input id='qrimageupload' type="file" onchange="decodeImageClick()">
+              <br>
+            </div>
+          </td>
+        </tr>
+      </table>
       <br/>
       <a href="http://zxing.org/w/decode.jspx" target="_blank">Try decoding it here</a>
       <br/>

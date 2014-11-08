@@ -31,8 +31,10 @@ decodeDataByMode = function(data, mode, charCount) {
       decodedData = decodeAlphanumeric(data, charCount);
       break;
     case BYTE:
+      console.warn("Byte Mode unsupported");
       break;
     case KANJI:
+      console.warn("Kanji Mode unsupported");
       break;
   }
   return decodedData;
@@ -69,7 +71,6 @@ decode = function(matrix) {
   var encodedData = dataString.substring(4 + charCountIndicatorLength);
 
   var text = decodeDataByMode(encodedData, mode, charCount);
-  console.warn(text);
-  console.warn(mode);
+  return text;
 };
 
