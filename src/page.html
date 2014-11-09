@@ -21,37 +21,50 @@
   <body onload="init()">
     <div class="page">
       <h1>My QR Code Encoder</h1>
-      <table>
+      <table class="displayTable">
+        <tr>
+          <td colspan=2><h2>Encode Text</h2></td>
+        </tr>
+        <tr>
+          <td>Text to Encode:</td>
+        <td><input type="text" id="qrinput" value="Hello World" class="myInput"></input></td>
+      </tr>
+        <tr>
+          <td>Error Correction Level:</td>
+          <td>
+            <select id="qrecl" class="myInput">
+              <option value="0">ECL_L - 7% Recovery</option>
+              <option value="1">ECL_M - 15% Recovery</option>
+              <option value="2">ECL_Q - 25% Recovery</option>
+              <option value="3">ECL_H - 30% Recovery</option>
+            </select>
+          </td>
+        </tr>
         <tr>
           <td>
-            <div class="canvasContainer">
-              <h2>Encoded Text</h2>
-              <canvas id='imageCanvas'></canvas>
-            </div>
-            <div>
-              <br/>
-              Text to Encode:
-              <input type="text" id="qrinput" value="Hello World" class="myInput"></input>
-              <br/>
-              Error Correction Level:
-              <select id="qrecl" class="myInput">
-                <option value="0">ECL_L - 7% Recovery</option>
-                <option value="1">ECL_M - 15% Recovery</option>
-                <option value="2">ECL_Q - 25% Recovery</option>
-                <option value="3">ECL_H - 30% Recovery</option>
-              </select>
-              <br/>
-              <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
-            </div>
+            <input type="button" onclick="QRCodeClick();" value="Create QR Code" class="myInput"></input>
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Encoded Image</td>
+          <td> <canvas id='imageCanvas'></canvas></td>
+        </tr>
+      </table>
+
+      <table class="displayTable">
+        <tr><td colspan=2><h2>Decode QRCode</h2></td></tr>
+        <tr>
+          <td>
+            <input id='qrimageupload' type="file" onchange="decodeImageClick()">
           </td>
           <td>
-            <div>
-              <img id='qrdecodeimagepreview'>
-              <br>
-              <input id='qrimageupload' type="file" onchange="decodeImageClick()">
-              <br>
-            </div>
+            <img id='qrdecodeimagepreview'>
           </td>
+        </tr>
+        <tr>
+          <td>Decoded Text</td>
+          <td><span id="qrdecodedtext" /></td>
         </tr>
       </table>
       <br/>

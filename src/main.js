@@ -4,6 +4,7 @@ var inputTextElement;
 var eclInputElement;
 var uploadImageElement;
 var decodeImagePreviewElement;
+var decodedTextElement;
 
 createQRCode = function(input, ecl) {
   matrix = encode(input, ecl);
@@ -17,8 +18,7 @@ QRCodeClick = function() {
   inputText = inputTextElement.value;
   ecl = eclInputElement.value;
 
-  matrix = createQRCode(inputText, ecl);
-  console.warn(decode(matrix));
+  var matrix = createQRCode(inputText, ecl);
 };
 
 decodeImageByDataUrl = function(url) {
@@ -27,7 +27,8 @@ decodeImageByDataUrl = function(url) {
     var matrix = getMatrixFromImage(img);
     if (matrix) {
       var text = decode(matrix);
-      console.warn(text);
+      console.warn("text");
+      decodedTextElement.innerHTML = text;
     }
   };
   img.src = url;
@@ -50,6 +51,7 @@ init = function init() {
   eclInputElement = document.getElementById('qrecl');
   uploadImageElement = document.getElementById('qrimageupload');
   decodeImagePreviewElement = document.getElementById('qrdecodeimagepreview');
+  decodedTextElement = document.getElementById('qrdecodedtext');
 
   inputTextElement.value = inputText;
   eclInputElement.value = ecl;
