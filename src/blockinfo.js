@@ -99,23 +99,25 @@ uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   var blocks = blockInfo[0] + blockInfo[1];
   var blockSize = Math.floor(dataCodewordsCount / blocks);
 
-  var blockStrings = new Array(blocks);
+  var dataBlocks = new Array(blocks);
   for (var i = 0; i < blocks; ++i) {
-    blockStrings[i] = "";
+    dataBlocks[i] = [];
   }
 
   for (var i = 0; i < blockSize * blocks; ++i) {
     var pos = i * 8;
-    blockStrings[i % blocks] += interleavedData.substring(pos, pos + 8);
+    dataBlocks[i % blocks].push(interleavedData.substring(pos, pos + 8));
   }
   for (var i = blockSize * blocks; i < dataCodewordsCount; ++i) {
     var pos = i * 8;
     var block = blockInfo[0] + (i % blocks);
-    blockStrings[block] += interleavedData.substring(pos, pos + 8);
+    dataBlocks[block].push(interleavedData.substring(pos, pos + 8));
   }
   var dataString = "";
-  for (var i = 0; i < blocks; ++i) {
-    dataString += blockStrings[i];
+  for (var i = 0; i < dataBlocks.length; ++i) {
+    for (var j = 0; j < dataBlocks[i].length; ++j) {
+      dataString += dataBlocks[i][j];
+    }
   }
 
   // Error Correction Codewords
