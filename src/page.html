@@ -26,11 +26,11 @@
           <td colspan=2><h2>Encode Text</h2></td>
         </tr>
         <tr>
-          <td>Text to Encode:</td>
+          <td>Text to Encode</td>
         <td><input type="text" id="qrinput" value="Hello World" class="myInput"></input></td>
       </tr>
         <tr>
-          <td>Error Correction Level:</td>
+          <td>Error Correction Level</td>
           <td>
             <select id="qrecl" class="myInput">
               <option value="0">ECL_L - 7% Recovery</option>
@@ -50,6 +50,10 @@
           <td>Encoded Image</td>
           <td> <canvas id='imageCanvas'></canvas></td>
         </tr>
+        <tr>
+          <td>Encoded Info</td>
+          <td><span id="qrencodedinfo"></td>
+        </tr>
       </table>
 
       <table class="displayTable">
@@ -65,6 +69,10 @@
         <tr>
           <td>Decoded Text</td>
           <td><span id="qrdecodedtext" /></td>
+        </tr>
+        <tr>
+          <td>Decoded Info</td>
+          <td><span id="qrdecodedinfo"></td>
         </tr>
       </table>
       <br/>

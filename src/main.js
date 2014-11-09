@@ -1,24 +1,36 @@
 var inputText = "Hello World This is a test";
 var ecl = ECL_M;
+
 var inputTextElement;
 var eclInputElement;
 var uploadImageElement;
 var decodeImagePreviewElement;
 var decodedTextElement;
+var encodedInfoElement;
+var decodedInfoElement;
+
+createInfoText = function(version, ecl, mask, mode) {
+  return "<b>Version:</b> " + version
+    + " - <b>Mode:</b> " + mode
+    + " - <b>ECL:</b> " + eclToText[ecl]
+    + " - <b>Mask:</b> " + mask;
+};
 
 createQRCode = function(input, ecl) {
-  matrix = encode(input, ecl);
+  result = encode(input, ecl);
   var encodeCanvas = new Canvas("imageCanvas");
-  encodeCanvas.drawMatrix(matrix, 10);
+  encodeCanvas.drawMatrix(result.matrix, 10);
 
-  return matrix;
+  encodedInfoElement.innerHTML = createInfoText(result.version, result.ecl, result.mask, result.mode);
+
+  return result;
 };
 
 QRCodeClick = function() {
   inputText = inputTextElement.value;
   ecl = eclInputElement.value;
 
-  var matrix = createQRCode(inputText, ecl);
+  createQRCode(inputText, ecl);
 };
 
 decodeImageByDataUrl = function(url) {
@@ -26,9 +38,9 @@ decodeImageByDataUrl = function(url) {
   img.onload = function() {
     var matrix = getMatrixFromImage(img);
     if (matrix) {
-      var text = decode(matrix);
-      console.warn("text");
-      decodedTextElement.innerHTML = text;
+      var result = decode(matrix);
+      decodedTextElement.innerHTML = result.text;
+      decodedInfoElement.innerHTML = createInfoText(result.version, result.ecl, result.mask, result.mode);
     }
   };
   img.src = url;
@@ -49,9 +61,12 @@ decodeImageClick = function() {
 init = function init() {
   inputTextElement = document.getElementById('qrinput');
   eclInputElement = document.getElementById('qrecl');
+  encodedInfoElement = document.getElementById('qrencodedinfo');
+
   uploadImageElement = document.getElementById('qrimageupload');
   decodeImagePreviewElement = document.getElementById('qrdecodeimagepreview');
   decodedTextElement = document.getElementById('qrdecodedtext');
+  decodedInfoElement = document.getElementById('qrdecodedinfo');
 
   inputTextElement.value = inputText;
   eclInputElement.value = ecl;

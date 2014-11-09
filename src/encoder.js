@@ -69,5 +69,5 @@ encode = function(input, ecl) {
 
   var matrix = createQRMatrix(version, ecl, bitString, mask);
 
-  return matrix;
+  return {matrix: matrix, version: version, mask: mask, ecl: ecl, mode: mode};
 };

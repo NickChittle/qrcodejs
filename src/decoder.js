@@ -65,6 +65,6 @@ decode = function(matrix) {
   var encodedData = dataString.substring(4 + charCountIndicatorLength);
 
   var text = decodeDataByMode(encodedData, mode, charCount);
-  return text;
+  return {text: text, version: version, ecl: ecl, mask: maskNumber, mode: mode};
 };
 
