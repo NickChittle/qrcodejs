@@ -9,9 +9,7 @@ download it, and decode it using an online decoder. Such as
 http://zxing.org/w/decode.jspx
 
 
-TODO:
-
-Encode and Decode Byte Mode (Currently supports Numeric and Alphanumeric).
+To Do:
 
 Encoding
   - [ ] Determine the best mask pattern using the evaluations conditions. Currently we just use any mask pattern.
