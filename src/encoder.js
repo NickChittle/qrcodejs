@@ -4,18 +4,19 @@ getEncodeMode = function(input) {
     return NUMERIC;
   } else if (isAlphanumeric(input)) {
     return ALPHANUMERIC;
+  } else if (isByte(input)) {
+    return BYTE;
   }
   console.warn("NO MODE");
   return "NO MODE";
 };
 
 isValidMode = function(mode) {
-  return (mode == NUMERIC || mode == ALPHANUMERIC
-      || mode == BYTE || mode == KANJI);
+  return (mode == NUMERIC || mode == ALPHANUMERIC || mode == BYTE);
 };
 
 encode = function(input, ecl) {
-  input = input.toUpperCase();
+  //input = input.toUpperCase(); // Now supports byte mode, not necessary.
   var mode = getEncodeMode(input);
   if (!isValidMode(mode)) {
     console.warn("Invalid Mode: " + mode);
@@ -34,8 +35,7 @@ encode = function(input, ecl) {
       encodedData = encodeAlphanumeric(input);
       break;
     case BYTE:
-      break;
-    case KANJI:
+      encodedData = encodeByte(input);
       break;
   }
 

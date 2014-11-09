@@ -10,14 +10,15 @@ createQRCode = function(input, ecl) {
   var encodeCanvas = new Canvas("imageCanvas");
   encodeCanvas.drawMatrix(matrix, 10);
 
-  decode(matrix);
+  return matrix;
 };
 
 QRCodeClick = function() {
   inputText = inputTextElement.value;
   ecl = eclInputElement.value;
 
-  createQRCode(inputText, ecl);
+  matrix = createQRCode(inputText, ecl);
+  console.warn(decode(matrix));
 };
 
 decodeImageByDataUrl = function(url) {

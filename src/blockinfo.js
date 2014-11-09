@@ -97,17 +97,18 @@ uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   // Data Codewords
   var blocks = blockInfo[0] + blockInfo[1];
   var blockSize = Math.floor(dataCodewordsCount / blocks);
-  var dataString = "";
+  var blockSizeForBlock = new Array(blocks);
   for (var i = 0; i < blockInfo[0]; ++i) {
-    for (var j = 0; j < blockSize; ++j) {
-      var pos = (j * 8) + (i * 8);
-      dataString += interleavedData.substring(pos, pos + 8);
-    }
+    blockSizeForBlock[i] = blockSize;
   }
   blockSize++;
-  for (var i = blockInfo[0]; i < blockInfo[0] + blockInfo[1]; ++i) {
-    for (var j = 0; j < blockSize; ++j) {
-      var pos = (j * 8) + (i * 8);
+  for (var i = 0; i < blockInfo[1]; ++i) {
+    blockSizeforBlock[blockInfo[0] + i] = blockSize;
+  }
+  var dataString = "";
+  for (var i = 0; i < blocks; ++i) {
+    for (var j = 0; j < blockSizeForBlock[i]; ++j) {
+      var pos = (j * blocks * 8) + i * 8;
       dataString += interleavedData.substring(pos, pos + 8);
     }
   }
@@ -119,7 +120,7 @@ uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   var errorString = "";
   for (var i = 0; i < blocks; ++i) {
     for (var j = 0; j < errorCodewordsPerBlock; ++j) {
-      var pos = (j * 8) + (i * 8);
+      var pos = (j * blocks * 8) + (i * 8);
       errorString += interleavedError.substring(pos, pos + 8);
     }
   }

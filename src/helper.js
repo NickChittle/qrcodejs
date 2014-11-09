@@ -86,11 +86,11 @@ getAlphanumericDataCapacity = function(version, ecl) {
 };
 
 getByteDataCapacity = function(version, ecl) {
-  return -1;
-};
-
-getKanjiDataCapacity = function(version, ecl) {
-  return -1;
+  var dataCodewords = getDataCodewords(version, ecl);
+  var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, BYTE);
+  // Subtract four for mode indicator.
+  var bits = (dataCodewords * 8) - charCountIndicatorLength - 4;
+  return Math.floor(bits/8);
 };
 
 getDataCapacity = function(version, mode, ecl) {
@@ -103,9 +103,6 @@ getDataCapacity = function(version, mode, ecl) {
       break;
     case BYTE:
       return getByteDataCapacity(version, ecl);
-      break;
-    case KANJI:
-      return getKanjiDataCapacity(version, ecl);
       break;
     default:
       console.warn("getDataCapacity: Unrecognized Mode: " + mode);
@@ -161,15 +158,6 @@ getCharacterCountIndicatorBitLength = function(version, mode) {
         return 16;
       } else if (version <= 40) {
         return 16;
-      }
-      break;
-    case KANJI:
-      if (version <= 9) {
-        return 8;
-      } else if (version <= 26) {
-        return 10;
-      } else if (version <= 40) {
-        return 12;
       }
       break;
     default:

@@ -1,6 +1,3 @@
-displayDecodedQRCode = function(matrix) {
-};
-
 getVersion = function(matrix) {
   return (matrix.length - 17) / 4;
 };
@@ -31,10 +28,7 @@ decodeDataByMode = function(data, mode, charCount) {
       decodedData = decodeAlphanumeric(data, charCount);
       break;
     case BYTE:
-      console.warn("Byte Mode unsupported");
-      break;
-    case KANJI:
-      console.warn("Kanji Mode unsupported");
+      decodedData = decodeByte(data, charCount);
       break;
   }
   return decodedData;
