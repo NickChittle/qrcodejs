@@ -27,3 +27,7 @@ body {
 .myInput {
   width: 100%;
 }
+
+.displayQRCode {
+  max-width: 500px;
+}
