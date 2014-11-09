@@ -91,25 +91,28 @@ interleaveBlocks = function(blocks) {
 uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   var blockInfo = eccTable[version-1][ecl];
   var dataCodewordsCount = getDataCodewords(version, ecl);
+  var errorCodewordsCount = getErrorCodewords(version, ecl);
   var interleavedData = bitString.substring(0, dataCodewordsCount * 8);
-  var interleavedError = bitString.substring(dataCodewordsCount * 8);
+  var interleavedError = bitString.substring(dataCodewordsCount * 8, dataCodewordsCount * 8 + errorCodewordsCount * 8);
 
   // Data Codewords
   var blocks = blockInfo[0] + blockInfo[1];
   var blockSize = Math.floor(dataCodewordsCount / blocks);
-  console.warn(blockSize);
-  console.warn(blockInfo);
 
   var blockStrings = new Array(blocks);
   for (var i = 0; i < blocks; ++i) {
     blockStrings[i] = "";
   }
 
-  for (var i = 0; i < blockSize * blocks;; ++i) {
+  for (var i = 0; i < blockSize * blocks; ++i) {
     var pos = i * 8;
     blockStrings[i % blocks] += interleavedData.substring(pos, pos + 8);
   }
-  for (var i = blockSize * blocks; < dataCodewordsCount; ++i)
+  for (var i = blockSize * blocks; i < dataCodewordsCount; ++i) {
+    var pos = i * 8;
+    var block = blockInfo[0] + (i % blocks);
+    blockStrings[block] += interleavedData.substring(pos, pos + 8);
+  }
   var dataString = "";
   for (var i = 0; i < blocks; ++i) {
     dataString += blockStrings[i];
