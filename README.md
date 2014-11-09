@@ -18,4 +18,4 @@ Encoding
 
 Decoding
   - [x] Visually Recognize the matrix in an image.
-  - [x] Use the Error Codewords to check for errors in the message.
+  - [] Use the Error Codewords to check for errors in the message.
