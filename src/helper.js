@@ -53,6 +53,11 @@ getErrorCodewords = function(version, ecl) {
   return errorCorrectionCodewords[version - 1][ecl];
 };
 
+getErrorCodewordsPerBlock = function(version, ecl, blocksCount) {
+  var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
+  return errorCodewordsCount / blocksCount;
+};
+
 getDataCodewords = function(version, ecl) {
   return getCodewordCount(version) - getErrorCodewords(version, ecl);
 };

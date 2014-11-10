@@ -39,8 +39,16 @@ decodeImageByDataUrl = function(url) {
     var matrix = getMatrixFromImage(img);
     if (matrix) {
       var result = decode(matrix);
-      decodedTextElement.innerHTML = result.text;
-      decodedInfoElement.innerHTML = createInfoText(result.version, result.ecl, result.mask, result.mode);
+      var text = "";
+      var info = "";
+      if (!result) {
+        text = "Could not decode QR Code";
+      } else {
+        text = result.text;
+        info = createInfoText(result.version, result.ecl, result.mask, result.mode);
+      }
+      decodedTextElement.innerHTML = text;
+      decodedInfoElement.innerHTML = info;
     }
   };
   img.src = url;

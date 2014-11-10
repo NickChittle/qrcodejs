@@ -113,26 +113,33 @@ uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
     var block = blockInfo[0] + (i % blocks);
     dataBlocks[block].push(interleavedData.substring(pos, pos + 8));
   }
-  var dataString = "";
-  for (var i = 0; i < dataBlocks.length; ++i) {
-    for (var j = 0; j < dataBlocks[i].length; ++j) {
-      dataString += dataBlocks[i][j];
-    }
-  }
+  //var dataString = "";
+  //for (var i = 0; i < dataBlocks.length; ++i) {
+    //for (var j = 0; j < dataBlocks[i].length; ++j) {
+      //dataString += dataBlocks[i][j];
+    //}
+  //}
 
   // Error Correction Codewords
   var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
   var errorCodewordsPerBlock = errorCodewordsCount / blocks;
 
-  var errorString = "";
+  var errorBlocks = new Array(blocks);
   for (var i = 0; i < blocks; ++i) {
-    for (var j = 0; j < errorCodewordsPerBlock; ++j) {
-      var pos = (j * blocks * 8) + (i * 8);
-      errorString += interleavedError.substring(pos, pos + 8);
-    }
+    errorBlocks[i] = [];
   }
+  for (var i = 0; i < errorCodewordsCount; ++i) {
+    var pos = i * 8;
+    errorBlocks[i % blocks].push(interleavedError.substring(pos, pos + 8));
+  }
+  //var errorString = "";
+  //for (var i = 0; i < errorBlocks.length; ++i) {
+    //for (var j = 0; j < errorBlocks[i].length; ++j) {
+      //errorString += errorBlocks[i][j];
+    //}
+  //}
 
-  return {data: dataString, error: errorString};
+  return {dataBlocks: dataBlocks, errorBlocks: errorBlocks};
 };
 
 convertBlocksToBinary = function(blocks) {
