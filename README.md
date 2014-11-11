@@ -14,6 +14,7 @@ http://zxing.org/w/decode.jspx
 ### Encoding
   - [x] Determine the best mask pattern using the evaluations conditions. Currently we just use any mask pattern.
   - [ ] Handle input that is too big
+
 ### Decoding
   - [x] Visually Recognize the matrix in an image.
   - [x] Use the Error Codewords to check for errors in the message.
