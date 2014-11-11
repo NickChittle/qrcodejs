@@ -1,5 +1,5 @@
-var inputText = "Hello World This is a test";
-var ecl = ECL_M;
+var inputText = "HELLO WORLD";
+var ecl = ECL_Q;
 
 var inputTextElement;
 var eclInputElement;

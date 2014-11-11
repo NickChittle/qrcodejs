@@ -65,9 +65,20 @@ encode = function(input, ecl) {
   bitString = allCodewords.join("");
 
   bitString = padToFullLength(bitString, version);
-  var mask = 5;
 
-  var matrix = createQRMatrix(version, ecl, bitString, mask);
+  // Select the matrix with the best mask pattern using the evaluation functions.
+  var matrixWithMask = [];
+  for (var i = 0; i < 8; ++i) {
+    var matrix = createQRMatrix(version, ecl, bitString, i);
+    matrixWithMask.push({matrix: matrix, maskPenalty: evaluateMatrixMask(matrix)});
+  }
+  var bestMask = 0;
+  for (var i = 1; i < matrixWithMask.length; ++i) {
+    if (matrixWithMask[i].maskPenalty < matrixWithMask[bestMask].maskPenalty) {
+      bestMask = i;
+    }
+  }
+  var matrix = matrixWithMask[bestMask].matrix;
 
-  return {matrix: matrix, version: version, mask: mask, ecl: ecl, mode: mode};
+  return {matrix: matrix, version: version, mask: bestMask, ecl: ecl, mode: mode};
 };
