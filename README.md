@@ -17,3 +17,4 @@ http://zxing.org/w/decode.jspx
 ### Decoding
   - [x] Visually Recognize the matrix in an image.
   - [x] Use the Error Codewords to check for errors in the message.
+  - [ ] Create good tests for error codeword correction algorithm to ensure it is working correctly.
