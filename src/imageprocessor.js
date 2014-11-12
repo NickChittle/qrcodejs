@@ -204,16 +204,16 @@ getMatrixFromImage = function(image) {
   if (!centers.topleft || !centers.topright || !centers.bottomleft) {
     console.warn("Could not find a finder pattern:");
     console.warn(centers);
-    return false;
+    return {success: false, errorReason: "Could not find the finder patterns"};
   }
   // Verify module sizes
   var moduleSize = Math.round((centers.topleft.modulesize + centers.topright.modulesize + centers.bottomleft.modulesize) / 3);
   var topLength = Math.round((centers.topright.cx - centers.topleft.cx) / moduleSize) + 7;
   var leftLength = Math.round((centers.bottomleft.cy - centers.topleft.cy) / moduleSize) + 7;
   if (topLength != leftLength) {
-    console.warn("Cannot agree on module size from centers");
+    console.warn("Cannot agree on module size from finder patterns");
     console.warn("TopLength: " + topLength +", LeftLength: " + leftLength);
-    return false;
+    return {success: false, errorReason: "Could not agree on module size from finder patterns"};
   }
   var length = topLength;
   var matrix = [];
@@ -229,5 +229,5 @@ getMatrixFromImage = function(image) {
     }
     matrix.push(column);
   }
-  return matrix;
+  return {success: true, matrix: matrix};
 };

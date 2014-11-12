@@ -16,13 +16,14 @@ isValidMode = function(mode) {
 };
 
 encode = function(input, ecl) {
-  //input = input.toUpperCase(); // Now supports byte mode, not necessary.
   var mode = getEncodeMode(input);
   if (!isValidMode(mode)) {
-    console.warn("Invalid Mode: " + mode);
-    return;
+    return {success: false, errorReason: "Invalid Mode"};
   }
   var version = getMinimumVersion(input.length, mode, ecl);
+  if (version == -1) {
+    return {success: false, errorReason: "Input too large"};
+  }
   var modeIndicator = getModeIndicator(mode);
   var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, mode);
   var charCountIndicator = padFrontWithZeros(convertToBinary(input.length), charCountIndicatorLength);
@@ -80,5 +81,5 @@ encode = function(input, ecl) {
   }
   var matrix = matrixWithMask[bestMask].matrix;
 
-  return {matrix: matrix, version: version, mask: bestMask, ecl: ecl, mode: mode};
+  return {success: true, matrix: matrix, version: version, mask: bestMask, ecl: ecl, mode: mode};
 };

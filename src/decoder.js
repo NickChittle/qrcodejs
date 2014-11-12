@@ -72,12 +72,11 @@ decode = function(matrix) {
 
   var o = uninterleaveDataAndErrorStrings(bitString, version, ecl);
   var errorCodewordsPerBlock = getErrorCodewordsPerBlock(version, ecl, o.dataBlocks.length);
-  console.warn(version, ecl, errorCodewordsPerBlock);
   var fixedErrors = fixErrors(o.dataBlocks, o.errorBlocks, errorCodewordsPerBlock);
 
   if (!fixedErrors) {
     console.warn("Could not fix errors in QR Code");
-    return false;
+    return {success: false, errorReason: "Could not fix errors in QR Code"};
   }
   var dataBlocks = fixedErrors.dataBlocks;
   var dataString = "";
@@ -93,6 +92,6 @@ decode = function(matrix) {
   var encodedData = dataString.substring(4 + charCountIndicatorLength);
 
   var text = decodeDataByMode(encodedData, mode, charCount);
-  return {text: text, version: version, ecl: ecl, mask: maskNumber, mode: mode};
+  return {success: true, text: text, version: version, ecl: ecl, mask: maskNumber, mode: mode};
 };
 

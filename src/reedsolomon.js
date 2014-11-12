@@ -222,7 +222,6 @@ rs_correct_msg = function(msg_in, nsym) {
   }
   var synd = rs_calc_syndromes(msg_out, nsym);
   if (Math.max.apply(null, synd) == 0) {
-    console.warn("No errors");
     return msg_out;  // no errors
   }
   var fsynd = rs_forney_syndromes(synd, erase_pos, msg_out.length);

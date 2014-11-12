@@ -122,6 +122,7 @@ getMinimumVersion = function(inputLength, mode, ecl) {
       return i;
     }
   }
+  console.warn("Input too large");
   return -1;
 };
 

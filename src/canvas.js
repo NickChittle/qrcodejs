@@ -1,11 +1,5 @@
-function Canvas(docId) {
-  if (!!docId) {
-    this.canvas = document.getElementById(docId);
-  } else {
-    this.canvas = document.createElement('canvas');
-    this.canvas.style = "padding:50px;";
-    document.body.appendChild(this.canvas);
-  }
+function Canvas(canvasObj) {
+  this.canvas = canvasObj;
   this.context = this.canvas.getContext('2d');
 }
 

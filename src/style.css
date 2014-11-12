@@ -31,3 +31,15 @@ body {
 .displayQRCode {
   max-width: 500px;
 }
+
+.error {
+  color: red;
+}
+
+.downloadAnchor {
+  appearance: button;
+  -moz-appearance: button;
+  -webkit-appearance: button;
+  text-decoration: none; font: menu; color: ButtonText;
+  display: inline-block; padding: 2px 8px;
+}
