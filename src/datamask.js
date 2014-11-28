@@ -1,7 +1,14 @@
+/**
+ * This file evaluates a matrix that has been masked and determines the penalty
+ * score to be attributed to it.
+ *
+ * There are 8 Data masks and we want to use the one with the lowest penalty
+ * score.
+ */
 
-
-
-
+/**
+ * Determines the penalty for 'count' number of the same modules in a row/column.
+ */
 getPenaltyForConsecutiveModules = function(count) {
   if (count >= 5) {
     // For five consecutive modules there is a penalty of 3, for each
@@ -12,7 +19,6 @@ getPenaltyForConsecutiveModules = function(count) {
 };
 
 evalOneModule = function(color, state) {
-
   if (color == state.currentColor) {
     state.count++;
   } else {
@@ -24,9 +30,14 @@ evalOneModule = function(color, state) {
   return 0;
 };
 
+/**
+ * Evaluates the penalty by counting the number of consecutive modules in a row
+ * that are the same.
+ */
 evalConditionOne = function(matrix) {
   var penalty = 0;
   var length = matrix.length;
+  // Evaluates the rows.
   for (var y = 0; y < length; ++y) {
     var state = {count: 0, currentColor: -1};
     for (var x = 0; x < length; ++x) {
@@ -35,6 +46,7 @@ evalConditionOne = function(matrix) {
     penalty += getPenaltyForConsecutiveModules(state.count);
   }
 
+  // Evaluates the columns.
   for (var x = 0; x < length; ++x) {
     var currentColor = -1;
     var count = 0;
@@ -47,6 +59,10 @@ evalConditionOne = function(matrix) {
   return penalty;
 };
 
+/**
+ * Determines the penalty by counting how many squares(2 x 2) of the same color
+ * there are.
+ */
 evalConditionTwo = function(matrix) {
   var penalty = 0;
   var length = matrix.length;
@@ -61,6 +77,9 @@ evalConditionTwo = function(matrix) {
   return penalty;
 };
 
+/**
+ * Checks if the matrix matches the pattern starting at (x,y) going in the x direction.
+ */
 checkMatchX = function(matrix, x, y, badPattern) {
   for (var i = 0; i < badPattern.length; ++i) {
     if (matrix[x+i][y] != badPattern[i]) {
@@ -70,6 +89,9 @@ checkMatchX = function(matrix, x, y, badPattern) {
   return true;
 };
 
+/**
+ * Checks if the matrix matches the pattern starting at (x,y) going in the y direction.
+ */
 checkMatchY = function(matrix, x, y, badPattern) {
   for (var i = 0; i < badPattern.length; ++i) {
     if (matrix[x][y+i] != badPattern[i]) {
@@ -79,6 +101,11 @@ checkMatchY = function(matrix, x, y, badPattern) {
   return true;
 };
 
+/**
+ * The given bad patterns match then finder patterns.  This evaluation
+ * condition looks for those patterns in the matrix and determines the
+ * appropriate penalty.
+ */
 evalConditionThree = function(matrix) {
   var bad1 = [1,0,1,1,1,0,1,0,0,0,0];
   var bad2 = [0,0,0,0,1,0,1,1,1,0,1];
@@ -110,6 +137,10 @@ evalConditionThree = function(matrix) {
   return penalty;
 };
 
+/**
+ * Evaluates the ration of black modules to white modules and assigns a penalty
+ * if the ration is far off from 1:1.
+ */
 evalConditionFour = function(matrix) {
   var length = matrix.length;
   var totalModules = length * length;
@@ -132,6 +163,9 @@ evalConditionFour = function(matrix) {
   return min * 10;
 };
 
+/**
+ * Sums up the four penalty conditions for a matrix.
+ */
 evaluateMatrixMask = function(matrix) {
   var penalty1 = evalConditionOne(matrix);
   var penalty2 = evalConditionTwo(matrix);

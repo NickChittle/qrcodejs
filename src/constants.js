@@ -1,3 +1,7 @@
+/**
+ * Constants for QR Encoding.
+ */
+
 NUMERIC = "NUMERIC";
 ALPHANUMERIC = "ALPHANUMERIC";
 BYTE = "BYTE";

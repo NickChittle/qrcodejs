@@ -1,3 +1,10 @@
+/**
+ * This file contains the logic to encode and decode alphanumeric data.
+ */
+
+/**
+ * The mapping from characters to integer values for encoding.
+ */
 alphanumericMap = {
   "0": 0, "1": 1, "2": 2, "3": 3, "4": 4,
   "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
@@ -9,6 +16,9 @@ alphanumericMap = {
   "Z": 35, " ": 36, "$": 37, "%": 38, "*": 39,
   "+": 40, "-": 41, ".": 42, "/": 43, ":": 44};
 
+/**
+ * The mapping from integer values to characters for decoding
+ */
 inverseAlphanumericMap = {
   0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
   5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
@@ -20,6 +30,9 @@ inverseAlphanumericMap = {
   35: "Z", 36: " ", 37: "$", 38: "%", 39: "*",
   40: "+", 41: "-", 42: ".", 43: "/", 44: ":"};
 
+/**
+ * Returns true if the given input can be encoded using alphanumeric encoding.
+ */
 isAlphanumeric = function(input) {
   // Input must be uppercase.
   for (var i = 0; i < input.length; ++i) {
@@ -30,6 +43,12 @@ isAlphanumeric = function(input) {
   return true;
 };
 
+/**
+ * Encodes some input using the alphanumeric coding scheme.
+ *
+ * Alphanumeric encoding takes characters in groups of two and multiplies the
+ * first one by 45 and adds it to the value of the second one.
+ */
 encodeAlphanumeric = function(input) {
   var encoded = "";
   for (var i = 0; i < input.length; i += 2) {
@@ -42,6 +61,7 @@ encodeAlphanumeric = function(input) {
       var num = alphanumericMap[first] * 45 + alphanumericMap[second];
       bin = padFrontWithZeros(convertToBinary(num), 11);
     } else {
+      // If there was an odd number of characters this will be the last one.
       var first = input.charAt(i);
       var num = alphanumericMap[first];
       bin = padFrontWithZeros(convertToBinary(num), 6);
@@ -51,8 +71,13 @@ encodeAlphanumeric = function(input) {
   return encoded;
 };
 
+/**
+ * Decodes the given alphanumeric string.
+ */
 decodeAlphanumeric = function(encodedData, charCount) {
   var decoded = "";
+  // Because alphanumeric encodes characters in groups of two we need to find
+  // out how many even pairs there are.
   var evenPairs = Math.floor(charCount / 2);
   for (var i = 0; i < evenPairs; ++i) {
     var pos = 11 * i;
@@ -62,6 +87,8 @@ decodeAlphanumeric = function(encodedData, charCount) {
     var first = (num - second) / 45;
     decoded += inverseAlphanumericMap[first] + inverseAlphanumericMap[second];
   }
+
+  // If there was an odd number of characters we need to handle the last one.
   if (charCount % 2 == 1) {
     var pos = 11 * evenPairs;
     var bin = encodedData.substring(pos, pos + 6);
@@ -70,4 +97,3 @@ decodeAlphanumeric = function(encodedData, charCount) {
   }
   return decoded;
 };
-

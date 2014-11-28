@@ -1,7 +1,18 @@
+/**
+ * Contains the logic for decoding a QR code that has already been processed
+ * into a matrix.
+ */
+
+/**
+ * Determines the version from the matrix.
+ */
 getVersion = function(matrix) {
   return (matrix.length - 17) / 4;
 };
 
+/**
+ * Retrieves the Error Correction Level from the format string.
+ */
 getEclFromFormatString = function(formatString) {
   var eclBits = formatString.substring(0, 2);
   var ecl = -1;
@@ -13,11 +24,18 @@ getEclFromFormatString = function(formatString) {
   return ecl;
 };
 
+/**
+ * Determines the mask number from the format string.
+ */
 getMaskNumberFromFormatString = function(formatString) {
   var maskBits = formatString.substring(2, 5);
   return convertToDecimal(maskBits);
 };
 
+/**
+ * After the data blocks have been uninterleaved and error corrected, they can
+ * being decoded using the appropriate mode.
+ */
 decodeDataByMode = function(data, mode, charCount) {
   var decodedData = "";
   switch(mode) {
@@ -34,6 +52,10 @@ decodeDataByMode = function(data, mode, charCount) {
   return decodedData;
 }
 
+/**
+ * Fixes the errors in the data blocks using the error blocks under Reed
+ * Solomon error correction.
+ */
 fixErrors = function(dataBlocks, errorBlocks, nsym) {
   for (var i = 0; i < dataBlocks.length; ++i) {
     // Copy the appropriate data and error blocks in.
@@ -42,6 +64,7 @@ fixErrors = function(dataBlocks, errorBlocks, nsym) {
     msg_in = convertCodewordsToDecimal(msg_in);
     var result = rs_correct_msg(msg_in, nsym);
 
+    // If the error correction failed, return false.
     if (!result) {
       return false;
     }
@@ -51,6 +74,19 @@ fixErrors = function(dataBlocks, errorBlocks, nsym) {
   return {dataBlocks: dataBlocks, errorBlocks: errorBlocks};
 };
 
+/**
+ * Decodes the given QR Matrix.
+ *
+ * Steps are:
+ * 1) Determine version
+ * 2) Remove all non-data/error bits from the matrix so we can easily find the important bits.
+ * 3) Extract the Error Correction Level and Mask number from version String
+ * 4) Verify that the version info on the matrix is correct.
+ * 5) Uninterleave the data and error blocks.
+ * 6) Fix the errors using reed solomon.
+ * 7) Extract the mode indicator.
+ * 8) Decoding using the appropriate mode.
+ */
 decode = function(matrix) {
   var version = getVersion(matrix);
   removeFinderPatterns(version, matrix);

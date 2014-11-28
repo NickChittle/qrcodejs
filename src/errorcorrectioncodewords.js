@@ -1,3 +1,5 @@
+// Contains how many error correction codewords there are for each [version],[Error Correction Level] combination.
+
 errorCorrectionCodewords = [
   [7, 10, 13, 17],
   [10, 16, 22, 28],

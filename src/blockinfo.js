@@ -1,4 +1,15 @@
+/**
+ * Larger versions may have more than one block.  This is to keep the error
+ * correction codewords size low, so the polynomials do not get too big.
+ *
+ * This file contains the logic for splitting up the data codewords into their
+ * respective blocks and interleaving them together.
+ */
 
+/**
+ * This is a mapping for each of the [version], [error correction level]
+ * combination and how many blocks there are.
+ */
 eccTable = [
     [[1, 0], [1, 0], [1, 0], [1, 0]], // 1
     [[1, 0], [1, 0], [1, 0], [1, 0]],
@@ -42,6 +53,9 @@ eccTable = [
     [[19, 6], [18, 31], [34, 34], [20, 61]] //40
   ];
 
+/**
+ * Splits the given codewords into their respective blocks.
+ */
 splitIntoBlocks = function(codewords, version, ecl) {
   var blocks = [];
   var blockInfo = eccTable[version-1][ecl];
@@ -53,6 +67,8 @@ splitIntoBlocks = function(codewords, version, ecl) {
     blocks.push({dataCodewords: block});
     start += blockSize;
   }
+
+  // Some of the blocks have one more size than the first set of blocks.
   blockSize++;
   for (var i = 0; i < blockInfo[1]; ++i) {
     var end = start + blockSize;
@@ -63,6 +79,9 @@ splitIntoBlocks = function(codewords, version, ecl) {
   return blocks;
 };
 
+/**
+ * Interleaves each of the data and error blocks separately.
+ */
 interleaveDataAndErrorBlocks = function(blocks) {
   dataBlocks = [];
   errorBlocks = [];
@@ -73,6 +92,10 @@ interleaveDataAndErrorBlocks = function(blocks) {
   return {dataCodewords: interleaveBlocks(dataBlocks), errorCodewords: interleaveBlocks(errorBlocks)};
 };
 
+/**
+ * Interleaves a given set of blocks, taking the first element of each block,
+ * and then the second element of each block, and so on.
+ */
 interleaveBlocks = function(blocks) {
   // Go one further because often times the blocks are not the same size, but
   // will only be off by one.
@@ -88,6 +111,9 @@ interleaveBlocks = function(blocks) {
   return codewords;
 };
 
+/**
+ * Uninterleaves the blocks for decoding.
+ */
 uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   var blockInfo = eccTable[version-1][ecl];
   var dataCodewordsCount = getDataCodewords(version, ecl);
@@ -99,45 +125,39 @@ uninterleaveDataAndErrorStrings = function(bitString, version, ecl) {
   var blocks = blockInfo[0] + blockInfo[1];
   var blockSize = Math.floor(dataCodewordsCount / blocks);
 
+  // Initialize data array.
   var dataBlocks = new Array(blocks);
   for (var i = 0; i < blocks; ++i) {
     dataBlocks[i] = [];
   }
 
+  // Uninterleave the first set of blocks.
   for (var i = 0; i < blockSize * blocks; ++i) {
     var pos = i * 8;
     dataBlocks[i % blocks].push(interleavedData.substring(pos, pos + 8));
   }
+  // Uninterleave the second set of blocks.
   for (var i = blockSize * blocks; i < dataCodewordsCount; ++i) {
     var pos = i * 8;
     var block = blockInfo[0] + (i % blocks);
     dataBlocks[block].push(interleavedData.substring(pos, pos + 8));
   }
-  //var dataString = "";
-  //for (var i = 0; i < dataBlocks.length; ++i) {
-    //for (var j = 0; j < dataBlocks[i].length; ++j) {
-      //dataString += dataBlocks[i][j];
-    //}
-  //}
 
   // Error Correction Codewords
   var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
   var errorCodewordsPerBlock = errorCodewordsCount / blocks;
 
+  // Initialize the error array.
   var errorBlocks = new Array(blocks);
   for (var i = 0; i < blocks; ++i) {
     errorBlocks[i] = [];
   }
+  // All of the error blocks are the same size, so we don't have to have two
+  // sets of uninterleaving like the data codewords.
   for (var i = 0; i < errorCodewordsCount; ++i) {
     var pos = i * 8;
     errorBlocks[i % blocks].push(interleavedError.substring(pos, pos + 8));
   }
-  //var errorString = "";
-  //for (var i = 0; i < errorBlocks.length; ++i) {
-    //for (var j = 0; j < errorBlocks[i].length; ++j) {
-      //errorString += errorBlocks[i][j];
-    //}
-  //}
 
   return {dataBlocks: dataBlocks, errorBlocks: errorBlocks};
 };

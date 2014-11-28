@@ -1,8 +1,17 @@
+/**
+ * This file contains the logice to encode and decode 'byte' data.
+ */
 
+/**
+ * Returns true if the given input can be encoded using byte mode.
+ */
 isByte = function(input) {
   return true;
 };
 
+/**
+ * Encodes the given input in byte mode, each one is simple the characters ascii value.
+ */
 encodeByte = function(input) {
   var encoded = "";
   for (var i = 0; i < input.length; ++i) {
@@ -11,6 +20,9 @@ encodeByte = function(input) {
   return encoded;
 };
 
+/**
+ * Decodes the given data into byte mode.
+ */
 decodeByte = function(input, charCount) {
   var decoded = "";
   for (var i = 0; i < charCount; ++i) {

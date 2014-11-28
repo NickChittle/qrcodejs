@@ -1,3 +1,10 @@
+/**
+ * This file contains the logic for drawing a given QR Matrix to the HTML5 Canvas.
+ */
+
+/**
+ * Constructor.
+ */
 function Canvas(canvasObj) {
   this.canvas = canvasObj;
   this.context = this.canvas.getContext('2d');
@@ -18,9 +25,11 @@ Canvas.prototype.drawMatrix = function(matrix, pixelWidth) {
   for (var i = 0; i < length; ++i) {
     for (var j = 0; j < length; ++j) {
       if (matrix[i][j] == 1) {
+        // Black Pixel.
         this.context.fillStyle = "#000";
         this.context.fillRect(i * pixelWidth, j * pixelWidth, pixelWidth, pixelWidth);
       } else if (matrix[i][j] == 0) {
+        // White Pixel.
         this.context.fillStyle = "#FFF";
         this.context.fillRect(i * pixelWidth, j * pixelWidth, pixelWidth, pixelWidth);
       } else if (matrix[i][j] == 2) {

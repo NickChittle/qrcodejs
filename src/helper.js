@@ -1,12 +1,17 @@
+// Contains lots of functios for determining values about version, error correction level combinations.
+
+// What are the dimensions of the given QR version.
 getLength = function(version) {
   return 17 + version*4;
 };
 
+// How many modules does this QR code have?
 getTotalModules = function(version) {
   var length = getLength(version);
   return length * length;
 };
 
+// How many allignment patterns are in this QR Code.
 getAllignmentPatternCount = function(version) {
   if (version == 1) {
     return 0;
@@ -14,10 +19,14 @@ getAllignmentPatternCount = function(version) {
     return 1
   } else {
     var l = Math.floor(version / 7) + 2;
+    // Subtract the three that intersect with the finder patterns.
     return l * l - 3;
   }
 };
 
+/**
+ * Returns how many modules belong to the function patterns.
+ */
 getFunctionPatternModules = function(version) {
   var length = getLength(version);
   var allignmentPatternCount = getAllignmentPatternCount(version);
@@ -41,27 +50,40 @@ getFormatAndVersionModules = function(version) {
   return version < 7 ? 31 : 67;
 };
 
+// How many of the modules are not for function and version information.
 getDataModulesCount = function(version) {
   return getTotalModules(version) - getFunctionPatternModules(version) - getFormatAndVersionModules(version);
 };
 
+// How many codewords (Groups of 8 modules) can fit in this version.
 getCodewordCount = function(version) {
   return Math.floor(getDataModulesCount(version) / 8);
 };
 
+// How many error correction codewords are there for the given version and
+// error correction level.
 getErrorCodewords = function(version, ecl) {
   return errorCorrectionCodewords[version - 1][ecl];
 };
 
+/**
+ * Returns how many error codewords there are per block.
+ */
 getErrorCodewordsPerBlock = function(version, ecl, blocksCount) {
   var errorCodewordsCount = errorCorrectionCodewords[version-1][ecl];
   return errorCodewordsCount / blocksCount;
 };
 
+/**
+ * How many of the codewords in the matrix are for data (As opposed for error correction)
+ */
 getDataCodewords = function(version, ecl) {
   return getCodewordCount(version) - getErrorCodewords(version, ecl);
 };
 
+/**
+ * Returns how many characters we can encode in numeric mode.
+ */
 getNumericDataCapacity = function(version, ecl) {
   var dataCodewords = getDataCodewords(version, ecl);
   var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, NUMERIC);
@@ -72,11 +94,14 @@ getNumericDataCapacity = function(version, ecl) {
   if (remainder >= 7) {
     dataCount += 2;
   } else if (remainder >= 4) {
-    dataCount ++;
+    dataCount++;
   }
   return dataCount;
 }
 
+/**
+ * Returns how many characetrs we can encode in alphanumeric mode.
+ */
 getAlphanumericDataCapacity = function(version, ecl) {
   var dataCodewords = getDataCodewords(version, ecl);
   var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, ALPHANUMERIC);
@@ -90,6 +115,9 @@ getAlphanumericDataCapacity = function(version, ecl) {
   return dataCount;
 };
 
+/**
+ * Returns how many characetrs we can encode in Byte mode.
+ */
 getByteDataCapacity = function(version, ecl) {
   var dataCodewords = getDataCodewords(version, ecl);
   var charCountIndicatorLength = getCharacterCountIndicatorBitLength(version, BYTE);
@@ -116,6 +144,9 @@ getDataCapacity = function(version, mode, ecl) {
   return -1;
 };
 
+/**
+ * Determines the minimum QR version for the given input size and encode mode.
+ */
 getMinimumVersion = function(inputLength, mode, ecl) {
   for (var i = 1; i <= 40; ++i) {
     if (inputLength < getDataCapacity(i, mode, ecl)) {
@@ -134,6 +165,9 @@ getModeFromIndicator = function(modeIndicator) {
   return inverseModeIndicator[modeIndicator];
 };
 
+/**
+ * Gets the size of the character count indicator for the given version and mode.
+ */
 getCharacterCountIndicatorBitLength = function(version, mode) {
   if (version < 1 || version > 40) {
     console.warn("Incorrect Version: " + version);
@@ -171,6 +205,7 @@ getCharacterCountIndicatorBitLength = function(version, mode) {
   }
 };
 
+// Conversions a binary string to decimal.
 convertToDecimal = function(binary) {
   var total = 0;
   for (var i = 0; i < binary.length; ++i) {
@@ -179,6 +214,7 @@ convertToDecimal = function(binary) {
   return total;
 };
 
+// Converts a number to binary.
 convertToBinary = function(number) {
   binary = "";
   while (number > 0) {
@@ -192,22 +228,27 @@ convertToBinary = function(number) {
   return binary;
 };
 
+// Pads the right side of the give string with the pad string 'n' times.
 padRight = function(input, padString, n) {
   return input + Array(n + 1).join(padString);
 };
 
+// Pads the left side of the give string with the pad string 'n' times.
 padLeft = function(input, padString, n) {
   return Array(n + 1).join(padString) + input;
 };
 
+// Pads the left size with zeros up to the given length.
 padFrontWithZeros = function(input, length) {
   return padLeft(input, "0", length - input.length);
 };
 
+// Pads the rigt size with zeros up to the given length.
 padEndWithZeros = function(input, length) {
   return padRight(input, "0", length - input.length);
 };
 
+// Pads up to length 8.
 padLengthToByte = function(input) {
   var remainder = input.length % 8;
   if (remainder != 0) {
@@ -216,6 +257,10 @@ padLengthToByte = function(input) {
   return input;
 };
 
+/**
+ * The QR code specification says to fill up any remaining space in the QR code
+ * with the given special bytes.
+ */
 padWithSpecialBytes = function(input, length) {
   var missingBytes = (length - input.length) / 8;
   var byte1 = "11101100"; // 236
@@ -227,6 +272,9 @@ padWithSpecialBytes = function(input, length) {
   return input;
 };
 
+/**
+ * Splits up the bitstring into groups of 8.
+ */
 getCodewords = function(bitString) {
   var codewords = [];
   for (var i = 0; i < bitString.length; i += 8) {
@@ -235,6 +283,9 @@ getCodewords = function(bitString) {
   return codewords;
 };
 
+/**
+ * Converts the given codewords all to decimal.
+ */
 convertCodewordsToDecimal = function(codewords) {
   for (var i = 0; i < codewords.length; ++i) {
     codewords[i] = convertToDecimal(codewords[i]);
@@ -242,6 +293,9 @@ convertCodewordsToDecimal = function(codewords) {
   return codewords;
 };
 
+/**
+ * Converts the given codewords all to binary.
+ */
 convertCodewordsToBinary = function(codewords) {
   for (var i = 0; i < codewords.length; ++i) {
     codewords[i] = padFrontWithZeros(convertToBinary(codewords[i]), 8);
@@ -254,6 +308,10 @@ getCodewordsDecimal = function(bitString) {
   return convertCodewordsToDecimal(codewords);
 };
 
+/**
+ * Pads the given bitstring to fill up all of the bits in the QR code to fill
+ * up the remaining bits that don't group into 8.
+ */
 padToFullLength = function(bitString, version) {
   var totalLength = getDataModulesCount(version);
   if (totalLength - bitString.length > 7) {
