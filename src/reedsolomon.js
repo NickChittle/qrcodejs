@@ -1,7 +1,25 @@
+/**
+ * The logic for doing Reed Solomon error correction.
+ *
+ * A lot of the information in this file is from this website:
+ * http://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders
+ *
+ * In this file polynomials are represented as arrays where the nth power of x
+ * is the nth element in the array.
+ * Ex: 4x^4 + 2x^3 + 0x^2 + 6x^1 + 8 becomes
+ * [8, 6, 0, 3, 4]
+ * Note the zero is for the second power of x
+ */
 
+/**
+ * The arrays for quickly findng 2^x and lg(x) (lg is log base 2)
+ */
 gf_exp = new Array(512+1).join('0').split('');
 gf_log = new Array(256+1).join('0').split('');
 
+/**
+ * Initialize the gf_exp and gf_log arrays.
+ */
 initGaliosFieldNums = function() {
   gf_exp[0] = 1;
   gf_log[0] = 0;
@@ -15,12 +33,20 @@ initGaliosFieldNums = function() {
      gf_exp[i] = x;
      gf_log[x] = i;
   }
+  // Under Galois 256 we are only supposed to have 256 numbers, and are
+  // therefore supposed to take any numbers bigger than 255 and use x % 255 to
+  // get the appropriate number, but since numbers should never be greater than
+  // 511, we can just copy the first half of the array into the last half and
+  // avoid this modulo arithmetic.
   for (var i = 255; i < 512; ++i) {
      gf_exp[i] = gf_exp[i-255];
   }
   gf_log[gf_exp[255]] = 255;
 };
 
+/**
+ * Multiply two numbers under Galois Arithmetic.
+ */
 gf_mul = function(x, y) {
   if (x == 0 || y == 0) {
     return 0;
@@ -28,6 +54,9 @@ gf_mul = function(x, y) {
   return gf_exp[gf_log[x] + gf_log[y]];
 };
 
+/**
+ * Divide two numbers under Galois Arithmetic.
+ */
 gf_div = function(x,y){
   if (y == 0) {
     return -1;
@@ -38,6 +67,9 @@ gf_div = function(x,y){
   return gf_exp[gf_log[x] + 255 - gf_log[y]];
 };
 
+/**
+ * Multiply a polynomial by the constant x.
+ */
 gf_poly_scale = function(p, x) {
   r = new Array(p.length);
   for (var i = 0; i < p.length; ++i) {
@@ -46,7 +78,10 @@ gf_poly_scale = function(p, x) {
   return r;
 }
 
-gf_poly_add = function(p,q) {
+/**
+ * Add two polynomials together.
+ */
+gf_poly_add = function(p, q) {
   r = new Array(Math.max(p.length, q.length));
   for (var i = 0; i < r.length; ++i) {
     r[i] = 0;
@@ -60,6 +95,9 @@ gf_poly_add = function(p,q) {
   return r
 };
 
+/**
+ * Multiply two polynomials together.
+ */
 gf_poly_mul = function(p, q) {
   r = new Array(p.length + q.length - 1);
   for (var i = 0; i < r.length; ++i) {
@@ -73,6 +111,9 @@ gf_poly_mul = function(p, q) {
   return r;
 };
 
+/**
+ * Evaluate the polynomial 'p' with the input 'x'
+ */
 gf_poly_eval = function(p, x) {
   var y = p[0];
   for (var i = 1; i < p.length; ++i) {
@@ -81,6 +122,11 @@ gf_poly_eval = function(p, x) {
   return y;
 };
 
+/**
+ * Create the generator polynomial for 'n' error correction codewords.
+ *
+ * Ex: (x - α^0)(x - α^1) ... (x - α^n-1)
+ */
 create_generator_poly = function(n) {
   g = [1];
   for (var i = 0; i < n; ++i) {
@@ -89,11 +135,18 @@ create_generator_poly = function(n) {
   return g;
 };
 
+/**
+ * Encode the message with the given number of Error Correction Codewords.
+ */
 rs_encode_msg = function(msg_in, nsym) {
   gen = create_generator_poly(nsym);
   return rs_encode_msg_with_gen(msg_in, nsym, gen);
 };
 
+/**
+ * Encode the message with the given number of Error Correction Codewords, and
+ * generator polynomial.
+ */
 rs_encode_msg_with_gen = function(msg_in, nsym, gen){
   msg_out = new Array(msg_in.length + nsym);
   for (var i = 0; i < msg_out.length; ++i) {
@@ -113,6 +166,9 @@ rs_encode_msg_with_gen = function(msg_in, nsym, gen){
   return msg_out.slice(msg_in.length);
 };
 
+/**
+ * Generates the error codewords for the given data blocks, version, and error correction level.
+ */
 generateErrorCodewords = function(blocks, version, ecl) {
   var errorCodewordsPerBlock = getErrorCodewordsPerBlock(version, ecl, blocks.length);
   for (var i = 0; i < blocks.length; ++i) {
@@ -122,6 +178,10 @@ generateErrorCodewords = function(blocks, version, ecl) {
   return blocks;
 };
 
+/**
+ * Calculates the 'syndromes' for the input message. Should evaluate to zero if
+ * there are no errors.
+ */
 rs_calc_syndromes = function(msg, nsym) {
    var synd = new Array(nsym);
    for (var i = 0; i < nsym; ++i) {
@@ -130,6 +190,9 @@ rs_calc_syndromes = function(msg, nsym) {
    return synd
 };
 
+/**
+ * Corrects errors at known locations.
+ */
 rs_correct_errata = function(msg, synd, pos) {
   // calculate error locator polynomial
   var q = [1];
@@ -157,6 +220,9 @@ rs_correct_errata = function(msg, synd, pos) {
   }
 };
 
+/**
+ * Finds the errors in a polynomial.
+ */
 rs_find_errors = function(synd, nmess){
   // find error locator polynomial with Berlekamp-Massey algorithm
   var err_poly = [1];
@@ -194,6 +260,10 @@ rs_find_errors = function(synd, nmess){
   return err_pos;
 };
 
+/**
+ * Calculate the 'forney syndromes' to prevent the erasures from interfering
+ * with the error location process.
+ */
 rs_forney_syndromes = function(synd, pos, nmess) {
   var fsynd = synd.slice(0);      // make a copy
   for (var i = 0; i < pos.length; ++i) {
@@ -206,6 +276,9 @@ rs_forney_syndromes = function(synd, pos, nmess) {
   return fsynd;
 }
 
+/**
+ * Attempts to correct the errors in a message.
+ */
 rs_correct_msg = function(msg_in, nsym) {
   var msg_out = msg_in.slice(0);     // copy of message
   // find erasures

@@ -1,4 +1,9 @@
+/**
+ * Contains the information for creating and working with the QR Matricies.
+ */
 
+// Contains the information about the alignment pattern locations in the
+// different versions of QR Codes
 var alignmentPatternLocations = [
   [0, 0],
   [0, 0], [18, 0], [22, 0], [26, 0], [30, 0], // 1- 5
@@ -11,6 +16,7 @@ var alignmentPatternLocations = [
   [24, 50], [28, 54], [32, 58], [26, 54], [30, 58], //35-40
   ];
 
+// The bits for a finder pattern.
 var finderPattern = [
   [1, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 0, 0, 1],
@@ -20,6 +26,7 @@ var finderPattern = [
   [1, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1]];
 
+// The bits for an alignment pattern.
 var alignmentPattern = [
   [1, 1, 1, 1, 1],
   [1, 0, 0, 0, 1],
@@ -27,9 +34,12 @@ var alignmentPattern = [
   [1, 0, 0, 0, 1],
   [1, 1, 1, 1, 1]];
 
+// The format string bits for the different Error Correction Levels.
 var eclFormatStringBits = ["01", "00", "11", "10"];
+// The mask that the standard says to apply to the format string.
 var magicMaskForFormatStr = convertToDecimal("101010000010010");
 
+// The Version Patterns that are supposed to be applied to the QR Code versions 7 and higher.
 var versionPattern = [
   0, 0, 0, 0, 0, 0, 0, 0x07c94, 0x085bc,
   0x09a99, 0x0a4d3, 0x0bbf6, 0x0c762, 0x0d847, 0x0e60d, 0x0f928, 0x10b78,
@@ -37,6 +47,7 @@ var versionPattern = [
   0x191e1, 0x1afab, 0x1b08e, 0x1cc1a, 0x1d33f, 0x1ed75, 0x1f250, 0x209d5,
   0x216f0, 0x228ba, 0x2379f, 0x24b0b, 0x2542e, 0x26a64, 0x27541, 0x28c69];
 
+// Creates an empty matrix.
 createMatrix = function(x, y) {
   var matrix = [];
   for (var i = 0; i < x; ++i) {
@@ -49,13 +60,7 @@ createMatrix = function(x, y) {
   return matrix;
 };
 
-maybeSet = function(x, y, value, matrix) {
-  if (matrix[x][y] == -1) {
-    matrix[x][y] = value;
-  }
-  return matrix;
-}
-
+// Creates a finder pattern at the given coordinates.
 addFinderPattern = function(x, y, matrix) {
   for (var i = 0; i < 7; ++i) {
     for (var j = 0; j < 7; ++j) {
@@ -65,6 +70,8 @@ addFinderPattern = function(x, y, matrix) {
   return matrix;
 };
 
+// Adds the finder patterns in all corners except the bottom right one as
+// defined in the standard.
 addFinderPatterns = function(version, matrix) {
   var length = getLength(version);
   addFinderPattern(0, 0, matrix);
@@ -73,6 +80,7 @@ addFinderPatterns = function(version, matrix) {
   return matrix;
 }
 
+// Removes the finder pattern from the matrix, used for decoding.
 removeFinderPattern = function(x, y, matrix) {
   for (var i = 0; i < 7; ++i) {
     for (var j = 0; j < 7; ++j) {
@@ -82,6 +90,7 @@ removeFinderPattern = function(x, y, matrix) {
   return matrix;
 };
 
+// Removes the finder patterns from the matrix, used for decoding.
 removeFinderPatterns = function(version, matrix) {
   var length = getLength(version);
   removeFinderPattern(0, 0, matrix);
@@ -90,6 +99,7 @@ removeFinderPatterns = function(version, matrix) {
   return matrix;
 };
 
+// The separators are the white spaces that go around the finder patterns.
 addSeparators = function(matrix) {
   var length = matrix.length;
   for (var i = 0; i < 8; ++i) {
@@ -105,6 +115,8 @@ addSeparators = function(matrix) {
   return matrix;
 };
 
+// The separators are the white spaces that go around the finder patterns.
+// Removed for decoding.
 removeSeparators = function(matrix) {
   var length = matrix.length;
   for (var i = 0; i < 8; ++i) {
@@ -120,11 +132,23 @@ removeSeparators = function(matrix) {
   return matrix;
 };
 
+// Sets the value in the matrix if it is not already set.
+// This is useful when we are applying the timing pattern that will intersect
+// with an alignment pattern. We are supposed to just skip the alignment
+// pattern.
+maybeSet = function(x, y, value, matrix) {
+  if (matrix[x][y] == -1) {
+    matrix[x][y] = value;
+  }
+  return matrix;
+}
+
+// Adds the timing patterns to the matrix.
 addTimingPatterns = function(matrix) {
   length = matrix.length;
   var color = 1;
   for (var i = 8; i < length - 8; ++i) {
-    // Don't overwrite alignment patterns.
+    // Don't overwrite alignment patterns, so we use maybeSet.
     maybeSet(6, i, color, matrix);
     maybeSet(i, 6, color, matrix);
     color = 1 - color;
@@ -132,6 +156,7 @@ addTimingPatterns = function(matrix) {
   return matrix;
 };
 
+// Removes the timing patterns from the Matrix. Used for decoding.
 removeTimingPatterns = function(matrix) {
   length = matrix.length;
   for (var i = 8; i < length - 8; ++i) {
@@ -141,6 +166,7 @@ removeTimingPatterns = function(matrix) {
   return matrix;
 };
 
+// Adds an alignment pattern to the matrix at the given coordinates.
 addAlignmentPattern = function(x, y, matrix) {
   for (var i = 0; i < 5; ++i) {
     for (var j = 0; j < 5; ++j) {
@@ -150,6 +176,8 @@ addAlignmentPattern = function(x, y, matrix) {
   return matrix;
 };
 
+// Adds an alignment pattern to the matrix at the given coordinates. Used for
+// decoding.
 removeAlignmentPattern = function(x, y, matrix) {
   for (var i = 0; i < 5; ++i) {
     for (var j = 0; j < 5; ++j) {
@@ -159,8 +187,10 @@ removeAlignmentPattern = function(x, y, matrix) {
   return matrix;
 };
 
+// Gets the allignment pattern locations for a matrix.
 getAlignmentPatternLocations = function(version) {
   if (version < 2) {
+    // No alignment patterns in version 1.
     return [];
   }
   var locations = [];
@@ -171,6 +201,7 @@ getAlignmentPatternLocations = function(version) {
     w = Math.floor((length - alignmentPatternLocations[version][0]) / d + 2);
   }
 
+  // In version two there is only one alignment pattern in the bottom right hand corner.
   if (w == 2) {
     var x = alignmentPatternLocations[version][0];
     var y = alignmentPatternLocations[version][0];
@@ -196,6 +227,7 @@ getAlignmentPatternLocations = function(version) {
   return locations;
 };
 
+// Adds all the alignment patterns to the matrix.
 addAlignmentPatterns = function(version, matrix) {
   locations = getAlignmentPatternLocations(version);
   for (var i = 0; i < locations.length; ++i) {
@@ -204,6 +236,7 @@ addAlignmentPatterns = function(version, matrix) {
   return matrix;
 };
 
+// Removes all the alignment patterns from the matrix.  Used for decoding.
 removeAlignmentPatterns = function(version, matrix) {
   locations = getAlignmentPatternLocations(version);
   for (var i = 0; i < locations.length; ++i) {
@@ -212,16 +245,21 @@ removeAlignmentPatterns = function(version, matrix) {
   return matrix;
 };
 
+// Adds the dark module to the matrix as defined by the standard.
 addDarkModule = function(matrix) {
   var length = matrix.length;
   matrix[8][length-8] = 1;
 };
 
+// Removes the dark module from the matrix.  Used for decoding.
 removeDarkModule = function(matrix) {
   var length = matrix.length;
   matrix[8][length-8] = -1;
 };
 
+// There are reserved areas for the version information and format information.
+// We add them as reserved so the functions that add the data modules can skip
+// them.
 addReservedAreas = function(version, matrix) {
   // Areas for version and format info.
   var length = getLength(version);
@@ -245,6 +283,20 @@ addReservedAreas = function(version, matrix) {
   return matrix;
 };
 
+/**
+ * Contains the logic for masking the QR Matricies as defined by the 8
+ * different mask patterns.
+ *
+ * Mask Number  If the formula below is true for a given row/column coordinate, switch the bit at that coordinate
+ * 0)           (row + column) mod 2 == 0
+ * 1)           (row) mod 2 == 0
+ * 2)           (column) mod 3 == 0
+ * 3)           (row + column) mod 3 == 0
+ * 4)           (floor(row / 2) + floor(column / 3) ) mod 2 == 0
+ * 5)           ((row * column) mod 2) + ((row * column) mod 3) == 0
+ * 6)           (((row * column) mod 2) + ((row * column) mod 3) ) mod 2 == 0
+ * 7)           (((row + column) mod 2) + ((row * column) mod 3) ) mod 2 == 0
+ */
 getMaskedBit = function(bit, x, y, maskNumber) {
   switch(maskNumber) {
     case 0:
@@ -291,6 +343,20 @@ getMaskedBit = function(bit, x, y, maskNumber) {
   return bit;
 };
 
+/** Gets the next spot in the pattern for setting data bits.
+ *
+ * When moving down the pattern is as follows:
+ * 2 1
+ * 4 3
+ * 6 5
+ * 8 7
+ *
+ * When moving up the pattern is as follows:
+ * 8 7
+ * 6 5
+ * 4 3
+ * 2 1
+ */
 nextSpot = function(state) {
   if (state.column == 1) {
     state.x--;
@@ -303,6 +369,7 @@ nextSpot = function(state) {
   return state;
 };
 
+// Changes the state when setting the data bits.
 moveState = function(state) {
   state = nextSpot(state);
   // We hit the edge, move over and change directions.
@@ -319,10 +386,20 @@ moveState = function(state) {
   return state;
 };
 
+/**
+ * Adds the data bits to the matrix.
+ *
+ * This function should only be called after all finder/alignment/timing
+ * patterns etc, have already been added from the matrix.
+ */
 addDataBits = function(bitString, matrix, maskNumber) {
   var length = matrix.length;
+  // Start adding bits at the bottom right corner of the matrix, moving up in
+  // the 'y' direction.
   var state = {"x": length-1, "y": length-1, "column": 1, "direction": -1};
   for (var i = 0; i < bitString.length; ++i) {
+    // Continue moving until we find a space that is not occupied. This is so
+    // we can skip alignment/finder patterns
     while (matrix[state.x][state.y] != -1) {
       moveState(state);
       if (state.x < 0) {
@@ -335,6 +412,12 @@ addDataBits = function(bitString, matrix, maskNumber) {
   return matrix;
 };
 
+/**
+ * Reads the data bits from the matrix, used for decoding.
+ *
+ * This function should only be called after all finder/alignment/timing
+ * patterns etc, have already been removed from the matrix.
+ */
 getDataBits = function(version, maskNumber, matrix) {
   bitString = "";
   var length = matrix.length;
@@ -354,6 +437,9 @@ getDataBits = function(version, maskNumber, matrix) {
   return bitString;
 };
 
+/**
+ * Changes the character to a number.
+ */
 getDecimalBit = function(bit) {
   if (bit == "1") {
     return 1;
@@ -361,6 +447,10 @@ getDecimalBit = function(bit) {
   return 0;
 };
 
+/**
+ * Creates the masked format string for the given Error Correction Level and
+ * mask pattern number.
+ */
 createFormatString = function(ecl, maskNumber) {
   var maskBinary = padFrontWithZeros(convertToBinary(maskNumber), 3);
   var data = eclFormatStringBits[ecl] + maskBinary;
@@ -379,6 +469,10 @@ createFormatString = function(ecl, maskNumber) {
   return padFrontWithZeros(convertToBinary(data), 15);
 };
 
+/**
+ * Adds the given format string to the matrix. It goes next to the finder
+ * patterns, while skipping the dark module.
+ */
 addFormatStringToMatrix = function(formatString, matrix) {
   var length = matrix.length;
   formatString = formatString.split("").reverse().join("");
@@ -401,6 +495,9 @@ addFormatStringToMatrix = function(formatString, matrix) {
   return matrix;
 };
 
+/**
+ * Removes the format string from the matrix, used for decoding.
+ */
 removeFormatStringFromMatrix = function(matrix) {
   var length = matrix.length;
   for (var i = 0; i < 6; ++i) {
@@ -422,6 +519,9 @@ removeFormatStringFromMatrix = function(matrix) {
   return matrix;
 };
 
+/**
+ * Reads the format string from the matrix.
+ */
 getFormatStringFromMatrix = function(matrix) {
   // The format string is put into the matrix twice. Once in the along the top
   // left Finder Pattern, and the second one is split up between the remaining
@@ -459,6 +559,12 @@ getFormatStringFromMatrix = function(matrix) {
   return padFrontWithZeros(convertToBinary(num), 15);
 };
 
+/**
+ * Adds the version information to the matrix for versions 7 and higher.
+ *
+ * This is used by the decoder to check that they have determined the correct
+ * version for the matrix.
+ */
 addVersionInfo = function(version, matrix) {
   if (version < 7) {
     return;
@@ -478,6 +584,9 @@ addVersionInfo = function(version, matrix) {
   return matrix;
 };
 
+/**
+ * Removes the version information from the matrix.  Used for decoding.
+ */
 removeVersionInfo = function(version, matrix) {
   if (version < 7) {
     return;
@@ -494,6 +603,10 @@ removeVersionInfo = function(version, matrix) {
   return matrix;
 }
 
+/**
+ * Checks that the version information in the matrix matches the version that
+ * we have determined by the matrix length.
+ */
 verifyVersionInfo = function(version, matrix) {
   if (version < 7) {
     return true;
@@ -521,19 +634,10 @@ verifyVersionInfo = function(version, matrix) {
   return true;
 };
 
-printMatrix = function(matrix) {
-  if (matrix.length == 0) {
-    return;
-  }
-  for (var i = 0; i < matrix[0].length; ++i) {
-    var line = "";
-    for (var j = 0; j < matrix.length; ++j) {
-      line += matrix[j][i];
-    }
-    console.log(line);
-  }
-};
-
+/**
+ * Creates the QR Matrix for the appropriate version, error correction level,
+ * input(data), and mask number.
+ */
 createQRMatrix = function(version, ecl, input, mask) {
   var length = getLength(version);
   var matrix = createMatrix(length, length);

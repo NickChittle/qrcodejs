@@ -1,3 +1,11 @@
+/**
+ * This file contains the logic for finding the QR code matrix in an image.
+ */
+
+/**
+ * Finds the middle brightness in the image, this is used for determining if a
+ * pixel should be a '1' or a '0'.
+ */
 getMiddleBrightness = function(imageMatrix) {
   var min = imageMatrix[0][0];
   var max = imageMatrix[0][0];
@@ -14,7 +22,10 @@ getMiddleBrightness = function(imageMatrix) {
   return (min + max) / 2;
 };
 
-getGreyscaleBitmap = function(image) {
+/**
+ * Convert an image to be a matrix of '1's and '0's instead of colors.
+ */
+getBinaryBitmap = function(image) {
   var canvas = document.createElement('canvas');
   var context = canvas.getContext('2d');
   var width = image.width;
@@ -24,6 +35,7 @@ getGreyscaleBitmap = function(image) {
   context.drawImage(image, 0, 0, width, height);
   var myData = context.getImageData(0, 0, width, height);
 
+  // Initialize arrays
   var greyScale = [];
   var ret = [];
   for (var x = 0; x < width; ++x) {
@@ -31,6 +43,7 @@ getGreyscaleBitmap = function(image) {
     greyScale.push(new Array(height));
   }
 
+  // Convert image to grey scale.
   for (var x = 0; x < width; ++x) {
     for (var y = 0; y < height; ++y) {
       var point = x * 4 + y * width * 4;
@@ -38,9 +51,10 @@ getGreyscaleBitmap = function(image) {
     }
   }
 
-
   var middle = getMiddleBrightness(greyScale);
 
+  // Convert greyscale image to binary image by grouping pixels that are on
+  // either side of the middle brightness.
   for (var x = 0; x < width; ++x) {
     for (var y = 0; y < height; ++y) {
       ret[x][y] = (greyScale[x][y] < middle) ? 1 : 0;
@@ -57,6 +71,9 @@ zeroArray = function(arr) {
   return arr;
 };
 
+/**
+ * Gets the total of all integers in an array.
+ */
 sumArray = function(arr) {
   var total = 0;
   for (var i = 0; i < arr.length; ++i) {
@@ -65,12 +82,26 @@ sumArray = function(arr) {
   return total;
 };
 
+/**
+ * Checks if the pixel counts that we have counted in the image can represent a
+ * Finder Pattern.
+ *
+ * A finder pattern looks like this:
+ * 1 1 1 1 1 1 1
+ * 1 0 0 0 0 0 1
+ * 1 0 1 1 1 0 1    <-- We are looking for these patterns
+ * 1 0 1 1 1 0 1    *
+ * 1 0 1 1 1 0 1    *
+ * 1 0 0 0 0 0 1
+ * 1 1 1 1 1 1 1
+ */
 isFinderPattern = function(pixelCount) {
   var totalModules = sumArray(pixelCount);
   if (totalModules < 7) {
     return false;
   }
   var moduleSize = Math.floor(totalModules / 7);
+  // We allow an error of 50%
   var maxVariance = Math.floor(moduleSize / 2);
   if (Math.abs(moduleSize - pixelCount[0]) < maxVariance &&
       Math.abs(moduleSize - pixelCount[1]) < maxVariance &&
@@ -83,6 +114,10 @@ isFinderPattern = function(pixelCount) {
   }
 };
 
+/**
+ * When scanning an image, this function is responsible for changing the state
+ * from one pixel to the next in keeping track of pixel counts.
+ */
 changeState = function(bit, state) {
   if (bit == 1) {
     // Black Pixel
@@ -100,6 +135,8 @@ changeState = function(bit, state) {
       // We were previously looking at black pixels, move on.
       state.currentState++;
     }
+    // If we have found five states, we can stop and check if they are the
+    // finder pattern.
     if (state.currentState >= 5) {
       return;
     }
@@ -107,10 +144,14 @@ changeState = function(bit, state) {
   }
 };
 
+/**
+ * Looks for the finder pattern in the top left corner of the image.
+ */
 findTopLeftCenter = function(bitmap) {
   var width = bitmap.length;
   var height = bitmap[0].length;
   state = {currentState: 0, pixelCount: new Array(5)};
+  // Start at the top left corner and scan right.
   for (var y = 0; y < height; ++y) {
     state.currentState = 0;
     zeroArray(state.pixelCount);
@@ -132,10 +173,14 @@ findTopLeftCenter = function(bitmap) {
   return undefined;
 };
 
+/**
+ * Looks for the finder pattern in the top right corner of the image.
+ */
 findTopRightCenter = function(bitmap) {
   var width = bitmap.length;
   var height = bitmap[0].length;
   state = {currentState: 0, pixelCount: new Array(5)};
+  // Start at the top rigt corner of the image and scan down.
   for (var y = 0; y < height; ++y) {
     state.currentState = 0;
     zeroArray(state.pixelCount);
@@ -157,6 +202,9 @@ findTopRightCenter = function(bitmap) {
   return undefined;
 };
 
+/**
+ * Looks for the finder pattern in the bottom left corner of the image.
+ */
 findBottomLeftCenter = function(bitmap) {
   var width = bitmap.length;
   var height = bitmap[0].length;
@@ -181,6 +229,9 @@ findBottomLeftCenter = function(bitmap) {
   }
 };
 
+/**
+ * Finds all of the finder patterns.
+ */
 findFinderPatterns = function(bitmap) {
   var width = bitmap.length;
   var height = bitmap[0].length;
@@ -198,8 +249,11 @@ findFinderPatterns = function(bitmap) {
   return {topleft: topleft, topright: topright, bottomleft: bottomleft };
 };
 
+/**
+ * Attempts to detect the matrix in the image.
+ */
 getMatrixFromImage = function(image) {
-  var bitmap = getGreyscaleBitmap(image);
+  var bitmap = getBinaryBitmap(image);
   var centers = findFinderPatterns(bitmap);
   if (!centers.topleft || !centers.topright || !centers.bottomleft) {
     console.warn("Could not find a finder pattern:");

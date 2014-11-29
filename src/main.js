@@ -1,6 +1,11 @@
+/**
+ * This file controls the main HTML demo page.
+ */
+
 var inputText = "HELLO WORLD";
 var ecl = ECL_Q;
 
+// The HTML elements that we will want to read/write info to/from
 var encodeCanvas;
 var inputTextElement;
 var eclInputElement;
@@ -13,6 +18,9 @@ var decodedTextElement;
 var encodedInfoElement;
 var decodedInfoElement;
 
+/**
+ * Create the formatted information text that will be displayed to the user
+ */
 createInfoText = function(version, ecl, mask, mode) {
   return "<b>Version:</b> " + version
     + " - <b>Mode:</b> " + mode
@@ -20,10 +28,17 @@ createInfoText = function(version, ecl, mask, mode) {
     + " - <b>Mask:</b> " + mask;
 };
 
+/**
+ * Create the formatted error text that will be displayed to the user
+ */
 createError = function(errorReason) {
   return "<span class='error'>Error: " + errorReason + "</span>";
 };
 
+/**
+ * When the user clicks the "Download as Image" button this sets the download
+ * data to be the canvas information.
+ */
 downloadCanvas = function(anchor, canvas, filename) {
   anchor.href = canvas.toDataURL();
   anchor.download = filename;
@@ -39,6 +54,10 @@ clearCanvas = function() {
   encodeCanvas.clear();
 };
 
+/**
+ * Check if a string is a valid URL.
+ * If the decoded QR Code is a valid ULR, we will make it a hyperlink.
+ */
 isValidUrl = function(str) {
   var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
@@ -53,6 +72,9 @@ isValidUrl = function(str) {
   }
 }
 
+/**
+ * Creates a QR Code with the given input and error correction level selection.
+ */
 createQRCode = function(input, ecl) {
   clearCanvas();
   var result = encode(input, ecl);
@@ -67,6 +89,9 @@ createQRCode = function(input, ecl) {
   return result;
 };
 
+/**
+ * The actions performed when the user clicks on 'Create QR Code'
+ */
 QRCodeClick = function() {
   inputText = inputTextElement.value;
   ecl = eclInputElement.value;
@@ -79,6 +104,10 @@ clearDecodeInfoBoxes = function() {
   decodedInfoElement.innerHTML = "";
 }
 
+/**
+ * Decodes a given QR Code matrix and displays the appropriate results to the
+ * user in the information boxes.
+ */
 decodeMatrix = function(matrix) {
   var result = decode(matrix);
   var text = "";
@@ -97,6 +126,9 @@ decodeMatrix = function(matrix) {
   decodedInfoElement.innerHTML = info;
 };
 
+/**
+ * When an image is uploaded, it is uploaded as a URL, so that is how we decode it.
+ */
 decodeImageByDataUrl = function(url) {
   clearDecodeInfoBoxes();
   var img = new Image();
@@ -111,6 +143,9 @@ decodeImageByDataUrl = function(url) {
   img.src = url;
 };
 
+/**
+ * Called when the user uploads an image to be decoded.
+ */
 decodeImageClick = function() {
   var file = uploadImageElement.files[0];
   var reader = new FileReader();
@@ -124,6 +159,7 @@ decodeImageClick = function() {
 };
 
 init = function init() {
+  // Get references to all the HTML elements we will need to work with.
   inputTextElement = document.getElementById('qrinput');
   eclInputElement = document.getElementById('qrecl');
   encodedInfoElement = document.getElementById('qrencodedinfo');
@@ -131,6 +167,7 @@ init = function init() {
   canvasElement = document.getElementById('imageCanvas');
   encodeCanvas = new Canvas(canvasElement);
 
+  // Logic for handling when the user wants to download the QR code.
   downloadAnchorElement.addEventListener('click', function() {
     downloadCanvas(this, canvasElement, 'qrcode.png');
   }, false);
@@ -143,6 +180,7 @@ init = function init() {
   inputTextElement.value = inputText;
   eclInputElement.value = ecl;
 
+  // Fake a QR Code click to encode the default data.
   QRCodeClick();
 };
 
